@@ -11,6 +11,84 @@ interface LetterWheelProps {
   onClearSelection: () => void;
 }
 
+const PuzzlePiece: React.FC<{ 
+  letter: string; 
+  isSelected: boolean; 
+  selectionOrder?: number;
+  style: React.CSSProperties;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+}> = ({ letter, isSelected, selectionOrder, style, onMouseDown, onTouchStart }) => {
+  return (
+    <div
+      className={`absolute cursor-pointer transition-all duration-200 transform select-none ${
+        isSelected 
+          ? 'scale-110 z-10' 
+          : 'hover:scale-105 z-5'
+      }`}
+      style={style}
+      onMouseDown={onMouseDown}
+      onTouchStart={onTouchStart}
+    >
+      {/* Puzzle Piece SVG */}
+      <svg
+        width="56"
+        height="56"
+        viewBox="0 0 56 56"
+        className={`drop-shadow-lg transition-all duration-200 ${
+          isSelected ? 'drop-shadow-xl' : 'hover:drop-shadow-xl'
+        }`}
+      >
+        <defs>
+          <linearGradient id={`puzzleGradient-${letter}-${isSelected}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            {isSelected ? (
+              <>
+                <stop offset="0%" stopColor="#8b5cf6" />
+                <stop offset="50%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#c084fc" />
+              </>
+            ) : (
+              <>
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="50%" stopColor="#faf5ff" />
+                <stop offset="100%" stopColor="#f3e8ff" />
+              </>
+            )}
+          </linearGradient>
+          <filter id={`shadow-${letter}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="2" dy="2" stdDeviation="3" floodColor="#000000" floodOpacity="0.3"/>
+          </filter>
+        </defs>
+        
+        {/* Puzzle Piece Shape */}
+        <path
+          d="M8 8 L24 8 Q28 4 32 8 Q36 12 32 16 L48 16 Q52 12 56 16 L56 32 Q60 36 56 40 Q52 44 56 48 L56 56 L40 56 Q36 60 32 56 Q28 52 32 48 L16 48 Q12 52 8 48 Q4 44 8 40 L8 24 Q4 20 8 16 Q12 12 8 8 Z"
+          fill={`url(#puzzleGradient-${letter}-${isSelected})`}
+          stroke={isSelected ? "#f97316" : "#e5e7eb"}
+          strokeWidth={isSelected ? "2" : "1"}
+          filter={`url(#shadow-${letter})`}
+        />
+      </svg>
+      
+      {/* Letter */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className={`text-xl font-bold pointer-events-none ${
+          isSelected ? 'text-white' : 'text-purple-800'
+        }`}>
+          {letter}
+        </span>
+      </div>
+      
+      {/* Selection Order Badge */}
+      {isSelected && selectionOrder && (
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg ring-2 ring-white">
+          {selectionOrder}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LetterWheel: React.FC<LetterWheelProps> = ({
   letters,
   selectedLetters,
@@ -49,7 +127,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
         Math.pow(relativeX - pos.x, 2) + Math.pow(relativeY - pos.y, 2)
       );
       
-      if (distance <= 28) { // Letter radius
+      if (distance <= 35) { // Puzzle piece radius
         return letters[i];
       }
     }
@@ -81,7 +159,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
     const y = e.clientY - rect.top;
     
     setMousePosition({ x, y });
-    setDragPath(prev => [...prev.slice(-10), { x, y }]); // Keep last 10 points
+    setDragPath(prev => [...prev.slice(-10), { x, y }]);
     
     const letterAtPosition = getLetterAtPosition(e.clientX, e.clientY);
     if (letterAtPosition && !selectedLetters.some(l => l.id === letterAtPosition.id)) {
@@ -162,18 +240,18 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       {/* Current Word Display */}
       <div className="h-16 flex items-center justify-center">
         {currentWord ? (
-          <div className="text-2xl font-bold text-purple-800 bg-gradient-to-r from-purple-100 to-orange-100 px-6 py-2 rounded-lg border-2 border-purple-200 shadow-lg">
+          <div className="text-2xl font-bold text-white bg-gradient-to-r from-purple-600 to-orange-500 px-6 py-3 rounded-xl border-2 border-orange-300 shadow-xl">
             {currentWord}
           </div>
         ) : (
-          <div className="text-gray-400 text-lg">Drag to connect letters</div>
+          <div className="text-purple-200 text-lg">Drag to connect puzzle pieces</div>
         )}
       </div>
 
-      {/* Letter Wheel */}
+      {/* Puzzle Wheel */}
       <div 
         ref={wheelRef}
-        className="relative bg-gradient-to-br from-purple-100 via-orange-50 to-purple-100 rounded-full shadow-xl border-4 border-purple-200"
+        className="relative bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 rounded-full shadow-2xl border-4 border-orange-300"
         style={{ width: '300px', height: '300px' }}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -203,7 +281,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
                 y1={prevPos.y}
                 x2={currentPos.x}
                 y2={currentPos.y}
-                stroke="url(#purpleGradient)"
+                stroke="url(#connectionGradient)"
                 strokeWidth="4"
                 className="drop-shadow-sm"
               />
@@ -223,7 +301,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
               ).y}
               x2={mousePosition.x}
               y2={mousePosition.y}
-              stroke="url(#orangeGradient)"
+              stroke="url(#activeConnectionGradient)"
               strokeWidth="3"
               strokeDasharray="5,5"
               className="animate-pulse"
@@ -232,52 +310,42 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
           
           {/* Gradient definitions */}
           <defs>
-            <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#9333ea" />
-              <stop offset="100%" stopColor="#c084fc" />
-            </linearGradient>
-            <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#f97316" />
               <stop offset="100%" stopColor="#fb923c" />
+            </linearGradient>
+            <linearGradient id="activeConnectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#f59e0b" />
             </linearGradient>
           </defs>
         </svg>
 
-        {/* Letters */}
+        {/* Puzzle Pieces */}
         {letters.map((letter, index) => {
           const position = getLetterPosition(index, letters.length);
           const isSelected = selectedLetters.some(l => l.id === letter.id);
           const selectionOrder = selectedLetters.findIndex(l => l.id === letter.id) + 1;
 
           return (
-            <div
+            <PuzzlePiece
               key={letter.id}
-              className={`absolute w-14 h-14 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200 transform select-none ${
-                isSelected 
-                  ? 'bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-xl scale-110 ring-4 ring-orange-300' 
-                  : 'bg-gradient-to-br from-white to-purple-50 text-purple-800 shadow-lg hover:shadow-xl hover:scale-105 hover:bg-gradient-to-br hover:from-purple-50 hover:to-orange-50'
-              }`}
+              letter={letter.char}
+              isSelected={isSelected}
+              selectionOrder={selectionOrder || undefined}
               style={{
                 left: `${position.x - 28}px`,
                 top: `${position.y - 28}px`,
-                zIndex: isSelected ? 10 : 5
               }}
               onMouseDown={(e) => handleMouseDown(e, letter)}
               onTouchStart={(e) => handleTouchStart(e, letter)}
-            >
-              <span className="text-xl font-bold pointer-events-none">{letter.char}</span>
-              {isSelected && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
-                  {selectionOrder}
-                </div>
-              )}
-            </div>
+            />
           );
         })}
 
-        {/* Center Circle */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-purple-200 via-orange-100 to-purple-200 rounded-full shadow-inner flex items-center justify-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-300 to-orange-300 rounded-full shadow-sm"></div>
+        {/* Center Puzzle Hub */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-full shadow-xl border-4 border-purple-300 flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full shadow-inner"></div>
         </div>
       </div>
 
@@ -286,14 +354,14 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
         <button
           onClick={onClearSelection}
           disabled={selectedLetters.length === 0}
-          className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           Clear
         </button>
         <button
           onClick={onWordSubmit}
           disabled={currentWord.length < 3}
-          className="px-6 py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white rounded-lg hover:from-purple-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+          className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
         >
           Submit Word
         </button>

@@ -8,6 +8,7 @@ import { generateLetterSet, validateWord, getWordScore, playSound } from '../uti
 import { getStoredProgress, saveProgress } from '../utils/storage';
 
 const WordPuzzleGame: React.FC = () => {
+  const [gameStarted, setGameStarted] = useState(false);
   const [gameState, setGameState] = useState<GameState>({
     level: 1,
     letters: [],
@@ -25,6 +26,11 @@ const WordPuzzleGame: React.FC = () => {
   const [showHint, setShowHint] = useState(false);
   const [gameMessage, setGameMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleStartGame = () => {
+    setGameStarted(true);
+    initializeGame();
+  };
 
   // Initialize game
   useEffect(() => {
@@ -297,37 +303,91 @@ const WordPuzzleGame: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto"></div>
-          <p className="mt-4 text-lg font-medium text-gray-600">Loading game...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-400 mx-auto"></div>
+          <p className="mt-4 text-lg font-medium text-purple-200">Loading game...</p>
         </div>
       </div>
     );
   }
 
+  if (!gameStarted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="mb-8">
+            <h1 className="text-6xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent mb-4">
+              Puzzle Rush
+            </h1>
+            <p className="text-purple-200 text-lg mb-2">
+              Connect puzzle pieces to form words!
+            </p>
+            <p className="text-purple-300 text-sm">
+              Drag across letters to create words and advance through levels
+            </p>
+          </div>
+          
+          <div className="mb-8">
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {/* Sample puzzle pieces for decoration */}
+              {['P', 'U', 'Z', 'Z', 'L', 'E'].map((letter, index) => (
+                <div key={index} className="relative">
+                  <svg width="48" height="48" viewBox="0 0 56 56" className="mx-auto">
+                    <defs>
+                      <linearGradient id={`previewGradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#f97316" />
+                        <stop offset="50%" stopColor="#fb923c" />
+                        <stop offset="100%" stopColor="#fdba74" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M8 8 L24 8 Q28 4 32 8 Q36 12 32 16 L48 16 Q52 12 56 16 L56 32 Q60 36 56 40 Q52 44 56 48 L56 56 L40 56 Q36 60 32 56 Q28 52 32 48 L16 48 Q12 52 8 48 Q4 44 8 40 L8 24 Q4 20 8 16 Q12 12 8 8 Z"
+                      fill={`url(#previewGradient-${index})`}
+                      stroke="#a855f7"
+                      strokeWidth="1"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">{letter}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={handleStartGame}
+            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xl font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105"
+          >
+            Start Game
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto">
+    <div className="min-h-screen p-4 max-w-4xl mx-auto text-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">Puzzle Rush</h1>
-          <p className="text-purple-600 font-semibold">Level {gameState.level}</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">Puzzle Rush</h1>
+          <p className="text-orange-300 font-semibold">Level {gameState.level}</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleSound}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-orange-100 hover:from-purple-200 hover:to-orange-200 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             {gameState.soundEnabled ? (
-              <Volume2 className="h-5 w-5 text-purple-600" />
+              <Volume2 className="h-5 w-5 text-white" />
             ) : (
-              <VolumeX className="h-5 w-5 text-purple-600" />
+              <VolumeX className="h-5 w-5 text-white" />
             )}
           </button>
           <button
             onClick={handleRestart}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-orange-100 hover:from-purple-200 hover:to-orange-200 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            <RotateCcw className="h-5 w-5 text-purple-600" />
+            <RotateCcw className="h-5 w-5 text-white" />
           </button>
         </div>
       </div>
@@ -348,7 +408,7 @@ const WordPuzzleGame: React.FC = () => {
           <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
             gameMessage.includes('Great!') ? 'bg-green-100 text-green-800' :
             gameMessage.includes('Not a valid') || gameMessage.includes('already found') ? 'bg-red-100 text-red-800' :
-            'bg-blue-100 text-blue-800'
+            'bg-orange-100 text-orange-800'
           }`}>
             {gameMessage}
           </div>
@@ -374,7 +434,7 @@ const WordPuzzleGame: React.FC = () => {
             <button
               onClick={handleHint}
               disabled={gameState.hintsUsed >= 3}
-              className="flex items-center space-x-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Lightbulb className="h-4 w-4" />
               <span>Hint ({3 - gameState.hintsUsed})</span>
@@ -383,7 +443,7 @@ const WordPuzzleGame: React.FC = () => {
             {gameState.isComplete && (
               <button
                 onClick={handleNextLevel}
-                className="flex items-center space-x-2 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <Trophy className="h-4 w-4" />
                 <span>Next Level</span>
