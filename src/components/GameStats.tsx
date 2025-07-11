@@ -24,28 +24,28 @@ const GameStats: React.FC<GameStatsProps> = ({
         {/* Level Score */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Target className="h-5 w-5 text-orange-600" />
+            <Target className="h-5 w-5 text-purple-600" />
             <span className="text-sm font-medium text-gray-600">Level Score</span>
           </div>
-          <div className="text-2xl font-bold text-orange-800">{score}</div>
+          <div className="text-2xl font-bold text-purple-800">{score}</div>
         </div>
 
         {/* Total Score */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Trophy className="h-5 w-5 text-yellow-600" />
+            <Trophy className="h-5 w-5 text-orange-600" />
             <span className="text-sm font-medium text-gray-600">Total Score</span>
           </div>
-          <div className="text-2xl font-bold text-yellow-800">{totalScore}</div>
+          <div className="text-2xl font-bold text-orange-800">{totalScore}</div>
         </div>
 
         {/* Level */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Star className="h-5 w-5 text-purple-600" />
+            <Star className="h-5 w-5 text-orange-600" />
             <span className="text-sm font-medium text-gray-600">Level</span>
           </div>
-          <div className="text-2xl font-bold text-purple-800">{level}</div>
+          <div className="text-2xl font-bold text-orange-800">{level}</div>
         </div>
 
         {/* Progress */}
@@ -58,7 +58,7 @@ const GameStats: React.FC<GameStatsProps> = ({
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
             <div 
-              className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-500"
+              className="bg-gradient-to-r from-purple-500 to-orange-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>

@@ -309,25 +309,25 @@ const WordPuzzleGame: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-orange-800">Word Puzzle</h1>
-          <p className="text-orange-600">Level {gameState.level}</p>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 bg-clip-text text-transparent">Puzzle Rush</h1>
+          <p className="text-purple-600 font-semibold">Level {gameState.level}</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleSound}
-            className="p-2 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-orange-100 hover:from-purple-200 hover:to-orange-200 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             {gameState.soundEnabled ? (
-              <Volume2 className="h-5 w-5 text-orange-600" />
+              <Volume2 className="h-5 w-5 text-purple-600" />
             ) : (
-              <VolumeX className="h-5 w-5 text-orange-600" />
+              <VolumeX className="h-5 w-5 text-purple-600" />
             )}
           </button>
           <button
             onClick={handleRestart}
-            className="p-2 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-orange-100 hover:from-purple-200 hover:to-orange-200 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            <RotateCcw className="h-5 w-5 text-orange-600" />
+            <RotateCcw className="h-5 w-5 text-purple-600" />
           </button>
         </div>
       </div>

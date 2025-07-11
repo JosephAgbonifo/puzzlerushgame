@@ -3,7 +3,7 @@ import WordPuzzleGame from './components/WordPuzzleGame';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-orange-50 to-purple-100">
       <WordPuzzleGame />
     </div>
   );

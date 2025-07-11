@@ -27,7 +27,7 @@ const WordList: React.FC<WordListProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 h-full">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-orange-800">Words Found</h2>
+        <h2 className="text-xl font-bold text-purple-800">Words Found</h2>
         <div className="text-sm text-gray-600">
           {discoveredWords.length} / {availableWords.length}
         </div>
@@ -51,7 +51,7 @@ const WordList: React.FC<WordListProps> = ({
                       isFound
                         ? 'bg-green-100 text-green-800'
                         : isCurrentWord
-                        ? 'bg-orange-100 text-orange-800 animate-pulse'
+                        ? 'bg-gradient-to-r from-purple-100 to-orange-100 text-purple-800 animate-pulse'
                         : 'bg-gray-100 text-gray-600'
                     }`}
                   >
