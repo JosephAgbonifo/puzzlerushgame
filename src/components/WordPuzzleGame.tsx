@@ -90,73 +90,55 @@ const WordPuzzleGame: React.FC = () => {
     }, {} as Record<string, number>);
 
     const availableWords: WordData[] = [];
-    const minLength = Math.max(3, gameState.level + 1);
-    const maxLength = Math.min(8, gameState.level + 4);
+    const minLength = 3;
+    const maxLength = Math.min(8, 5 + gameState.level);
 
-    // Generate all possible words from the letters
-    const possibleWords = await generatePossibleWords(letters.map(l => l.char), minLength, maxLength);
-    
-    for (const word of possibleWords) {
-      const wordCounts = word.split('').reduce((acc, char) => {
-        acc[char] = (acc[char] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-      const canForm = Object.entries(wordCounts).every(([char, count]) => 
-        letterCounts[char] >= count
-      );
-
-      if (canForm && await validateWord(word)) {
-        availableWords.push({
-          word: word.toUpperCase(),
-          score: getWordScore(word, gameState.level),
-          found: false
-        });
-      }
-    }
-
-    return availableWords.sort((a, b) => a.word.length - b.word.length);
-  };
-
-  const generatePossibleWords = async (chars: string[], minLength: number, maxLength: number): Promise<string[]> => {
-    const words: string[] = [];
-    const usedChars = chars.map(c => c.toLowerCase());
-    
-    // Common English words for different lengths
-    const commonWords = [
-      // 3-letter words
-      'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use', 'way', 'art', 'car', 'cat', 'dog', 'eat', 'eye', 'far', 'fun', 'got', 'hot', 'job', 'lot', 'may', 'run', 'sun', 'ten', 'yes', 'yet', 'red', 'big', 'end', 'ask', 'men', 'try', 'own', 'war', 'oil', 'sit', 'set', 'win', 'low', 'cut', 'hit', 'law', 'arm', 'age', 'act', 'air', 'bit', 'box', 'cup', 'die', 'ear', 'egg', 'few', 'fly', 'gun', 'ice', 'joy', 'key', 'lie', 'map', 'net', 'pen', 'pot', 'row', 'sea', 'sky', 'top', 'toy', 'van', 'wet', 'zoo',
-      // 4-letter words
-      'that', 'with', 'have', 'this', 'will', 'your', 'from', 'they', 'know', 'want', 'been', 'good', 'much', 'some', 'time', 'very', 'when', 'come', 'here', 'just', 'like', 'long', 'make', 'many', 'over', 'such', 'take', 'than', 'them', 'well', 'were', 'what', 'year', 'back', 'call', 'came', 'each', 'even', 'find', 'give', 'hand', 'high', 'keep', 'last', 'left', 'life', 'live', 'look', 'made', 'most', 'move', 'must', 'name', 'need', 'next', 'open', 'part', 'play', 'read', 'said', 'same', 'seem', 'show', 'side', 'tell', 'turn', 'used', 'want', 'ways', 'week', 'went', 'word', 'work', 'best', 'both', 'care', 'door', 'down', 'face', 'fact', 'feel', 'feet', 'fire', 'food', 'form', 'four', 'free', 'game', 'girl', 'gone', 'head', 'help', 'home', 'hope', 'hour', 'idea', 'kind', 'knew', 'land', 'late', 'line', 'list', 'love', 'mind', 'near', 'once', 'only', 'talk', 'team', 'told', 'took', 'tree', 'true', 'type', 'walk', 'wall', 'wife', 'wind', 'book', 'draw', 'hard', 'hear', 'hold', 'lost', 'mean', 'plan', 'real', 'room', 'save', 'sort', 'stay', 'stop', 'sure', 'term', 'test', 'tool', 'upon', 'warm', 'wear', 'blue', 'cold', 'cool', 'dark', 'deep', 'easy', 'fine', 'full', 'half', 'hurt', 'jump', 'kill', 'nice', 'note', 'pair', 'park', 'pass', 'past', 'path', 'pick', 'poor', 'push', 'race', 'rich', 'ride', 'rock', 'role', 'rule', 'safe', 'ship', 'shop', 'shot', 'sick', 'size', 'skin', 'soft', 'soon', 'star', 'task', 'teen', 'thus', 'town', 'trip', 'ugly', 'unit', 'user', 'vast', 'view', 'vote', 'wake', 'wave', 'wide', 'wild', 'wine', 'wise', 'wood', 'zone',
-      // 5-letter words
-      'about', 'after', 'again', 'black', 'could', 'first', 'found', 'great', 'group', 'house', 'large', 'never', 'other', 'place', 'point', 'right', 'small', 'sound', 'still', 'three', 'under', 'water', 'where', 'while', 'world', 'would', 'write', 'years', 'young', 'above', 'among', 'began', 'being', 'below', 'build', 'carry', 'clean', 'clear', 'close', 'every', 'final', 'given', 'going', 'green', 'happy', 'heard', 'heart', 'heavy', 'human', 'light', 'lived', 'local', 'might', 'music', 'night', 'north', 'often', 'order', 'paper', 'party', 'peace', 'Phone', 'piece', 'plant', 'power', 'press', 'price', 'quick', 'quiet', 'quite', 'reach', 'shall', 'short', 'since', 'space', 'speak', 'spent', 'stage', 'start', 'state', 'story', 'study', 'third', 'those', 'trade', 'tried', 'using', 'value', 'voice', 'watch', 'white', 'whole', 'whose', 'woman', 'words', 'worse', 'worst', 'worth', 'wrong', 'wrote', 'alive', 'alone', 'along', 'angry', 'array', 'basic', 'beach', 'birth', 'bread', 'break', 'bring', 'brown', 'chair', 'cheap', 'check', 'chest', 'child', 'china', 'chose', 'claim', 'class', 'climb', 'clock', 'cloud', 'couch', 'count', 'court', 'cover', 'crash', 'cream', 'cross', 'crowd', 'dance', 'death', 'depth', 'doubt', 'draft', 'drama', 'dream', 'dress', 'drink', 'drive', 'early', 'earth', 'eight', 'empty', 'enemy', 'enjoy', 'enter', 'entry', 'equal', 'error', 'event', 'exact', 'exist', 'extra', 'faith', 'false', 'field', 'fight', 'floor', 'focus', 'force', 'fresh', 'front', 'fruit', 'glass', 'grand', 'grant', 'grass', 'guard', 'guess', 'guest', 'guide', 'horse', 'hotel', 'house', 'image', 'index', 'inner', 'input', 'issue', 'judge', 'knife', 'known', 'label', 'laugh', 'layer', 'learn', 'least', 'leave', 'legal', 'level', 'limit', 'logic', 'loose', 'lucky', 'lunch', 'magic', 'major', 'march', 'match', 'mayor', 'metal', 'minor', 'mixed', 'model', 'money', 'month', 'mouse', 'mouth', 'movie', 'noise', 'nurse', 'ocean', 'offer', 'panel', 'phase', 'phone', 'photo', 'piano', 'pilot', 'plain', 'plate', 'plaza', 'point', 'pound', 'prime', 'prior', 'proof', 'proud', 'queen', 'radio', 'raise', 'range', 'rapid', 'ratio', 'react', 'relax', 'rider', 'river', 'rough', 'round', 'route', 'royal', 'scene', 'scope', 'score', 'sense', 'serve', 'seven', 'shade', 'shake', 'shape', 'share', 'sharp', 'shift', 'shine', 'shock', 'shore', 'shown', 'sight', 'silly', 'sixth', 'sixty', 'skill', 'sleep', 'slice', 'slide', 'smile', 'smoke', 'snake', 'snow', 'solid', 'solve', 'sorry', 'south', 'spare', 'speed', 'spell', 'spend', 'split', 'spoke', 'sport', 'staff', 'stage', 'stake', 'stand', 'steam', 'steel', 'stick', 'stock', 'stone', 'store', 'storm', 'strip', 'stuck', 'style', 'sugar', 'sweet', 'swing', 'table', 'taken', 'taste', 'teach', 'thank', 'their', 'theme', 'there', 'these', 'thick', 'thing', 'think', 'title', 'today', 'total', 'touch', 'tough', 'tower', 'track', 'train', 'treat', 'trend', 'truck', 'trust', 'truth', 'twice', 'uncle', 'under', 'union', 'until', 'upper', 'urban', 'usage', 'usual', 'video', 'virus', 'visit', 'waste', 'weigh', 'wheel', 'width', 'woman', 'worth', 'youth'
-    ];
-
-    for (const word of commonWords) {
-      if (word.length >= minLength && word.length <= maxLength) {
-        const wordChars = word.toLowerCase().split('');
-        const charCounts = wordChars.reduce((acc, char) => {
+    // Get all words from our dictionary that can be formed with available letters
+    for (let length = minLength; length <= maxLength; length++) {
+      const wordsOfLength = wordDictionary[length] || [];
+      
+      for (const word of wordsOfLength) {
+        const wordCounts = word.split('').reduce((acc, char) => {
           acc[char] = (acc[char] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 
-        const availableCharCounts = usedChars.reduce((acc, char) => {
-          acc[char] = (acc[char] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        const canForm = Object.entries(charCounts).every(([char, count]) => 
-          availableCharCounts[char] >= count
+        const canForm = Object.entries(wordCounts).every(([char, count]) => 
+          letterCounts[char] >= count
         );
 
         if (canForm) {
-          words.push(word);
+          availableWords.push({
+            word: word,
+            score: getWordScore(word, gameState.level),
+            found: false
+          });
         }
       }
     }
-
-    return words;
+    
+    return availableWords.sort((a, b) => a.word.length - b.word.length);
   };
+
+  // Auto-submit when valid word is formed
+  useEffect(() => {
+    const checkAndSubmitWord = async () => {
+      if (gameState.currentWord.length >= 3) {
+        const isValid = await validateWord(gameState.currentWord);
+        const wordData = gameState.availableWords.find(w => w.word === gameState.currentWord);
+        const alreadyFound = gameState.discoveredWords.some(w => w.word === gameState.currentWord);
+        
+        if (isValid && wordData && !alreadyFound) {
+          // Auto-submit valid word
+          setTimeout(() => {
+            handleWordSubmit();
+          }, 500); // Small delay for better UX
+        }
+      }
+    };
+
+    checkAndSubmitWord();
+  }, [gameState.currentWord]);
 
   const handleLetterSelect = (letter: Letter) => {
     if (gameState.selectedLetters.some(l => l.id === letter.id)) {
@@ -193,14 +175,14 @@ const WordPuzzleGame: React.FC = () => {
 
   const handleWordSubmit = async () => {
     if (gameState.currentWord.length < 3) {
-      setGameMessage('Words must be at least 3 letters long');
+      setGameMessage('Words must be at least 3 letters long!');
       return;
     }
 
     const wordData = gameState.availableWords.find(w => w.word === gameState.currentWord);
     
     if (!wordData) {
-      setGameMessage('Not a valid word');
+      setGameMessage('Not a valid word!');
       if (gameState.soundEnabled) {
         playSound('error');
       }
@@ -209,7 +191,7 @@ const WordPuzzleGame: React.FC = () => {
     }
 
     if (gameState.discoveredWords.some(w => w.word === gameState.currentWord)) {
-      setGameMessage('Word already found!');
+      setGameMessage('Already found this word!');
       if (gameState.soundEnabled) {
         playSound('error');
       }
@@ -232,7 +214,7 @@ const WordPuzzleGame: React.FC = () => {
       isComplete: newDiscoveredWords.length === prev.availableWords.length
     }));
 
-    setGameMessage(`Great! +${wordData.score} points`);
+    setGameMessage(`Excellent! +${wordData.score} points! 🎉`);
     
     if (gameState.soundEnabled) {
       playSound('success');
@@ -240,7 +222,7 @@ const WordPuzzleGame: React.FC = () => {
 
     // Check if level is complete
     if (newDiscoveredWords.length === gameState.availableWords.length) {
-      setGameMessage('Level Complete! 🎉');
+      setGameMessage('🎊 Level Complete! Amazing work! 🎊');
       if (gameState.soundEnabled) {
         playSound('levelComplete');
       }
@@ -257,7 +239,7 @@ const WordPuzzleGame: React.FC = () => {
 
   const handleHint = () => {
     if (gameState.hintsUsed >= 3) {
-      setGameMessage('No more hints available');
+      setGameMessage('No more hints available this level!');
       return;
     }
 
@@ -266,7 +248,7 @@ const WordPuzzleGame: React.FC = () => {
 
     const randomWord = unFoundWords[Math.floor(Math.random() * unFoundWords.length)];
     setShowHint(true);
-    setGameMessage(`Hint: ${randomWord.word.slice(0, 2)}${'*'.repeat(randomWord.word.length - 2)}`);
+    setGameMessage(`💡 Hint: ${randomWord.word.slice(0, 2)}${'*'.repeat(randomWord.word.length - 2)}`);
     
     setGameState(prev => ({
       ...prev,
@@ -321,7 +303,7 @@ const WordPuzzleGame: React.FC = () => {
             <p className="text-purple-200 text-lg mb-2">
               Connect puzzle pieces to form words!
             </p>
-            <p className="text-purple-300 text-sm">
+            <p className="text-purple-300 text-sm mb-4">
               Drag across letters to create words and advance through levels
             </p>
           </div>
@@ -356,7 +338,7 @@ const WordPuzzleGame: React.FC = () => {
 
           <button
             onClick={handleStartGame}
-            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xl font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105"
+            className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-xl font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105 border-2 border-orange-400 hover:border-orange-300 neon-glow"
           >
             Start Game
           </button>
@@ -369,13 +351,13 @@ const WordPuzzleGame: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">Puzzle Rush</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent neon-text">Puzzle Rush</h1>
           <p className="text-orange-300 font-semibold">Level {gameState.level}</p>
         </div>
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleSound}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
           >
             {gameState.soundEnabled ? (
               <Volume2 className="h-5 w-5 text-white" />
@@ -385,7 +367,7 @@ const WordPuzzleGame: React.FC = () => {
           </button>
           <button
             onClick={handleRestart}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
           >
             <RotateCcw className="h-5 w-5 text-white" />
           </button>
@@ -406,9 +388,9 @@ const WordPuzzleGame: React.FC = () => {
       {gameMessage && (
         <div className="text-center mb-4">
           <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-            gameMessage.includes('Great!') ? 'bg-green-100 text-green-800' :
-            gameMessage.includes('Not a valid') || gameMessage.includes('already found') ? 'bg-red-100 text-red-800' :
-            'bg-orange-100 text-orange-800'
+            gameMessage.includes('Excellent!') || gameMessage.includes('Complete') ? 'bg-green-500 text-white neon-success' :
+            gameMessage.includes('Not a valid') || gameMessage.includes('Already found') ? 'bg-red-500 text-white neon-error' :
+            'bg-orange-500 text-white neon-info'
           }`}>
             {gameMessage}
           </div>
@@ -434,7 +416,7 @@ const WordPuzzleGame: React.FC = () => {
             <button
               onClick={handleHint}
               disabled={gameState.hintsUsed >= 3}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
             >
               <Lightbulb className="h-4 w-4" />
               <span>Hint ({3 - gameState.hintsUsed})</span>
@@ -443,7 +425,7 @@ const WordPuzzleGame: React.FC = () => {
             {gameState.isComplete && (
               <button
                 onClick={handleNextLevel}
-                className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
               >
                 <Trophy className="h-4 w-4" />
                 <span>Next Level</span>

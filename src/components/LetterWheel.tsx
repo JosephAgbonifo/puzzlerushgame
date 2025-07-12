@@ -350,21 +350,15 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex space-x-4">
-        <button
-          onClick={onClearSelection}
-          disabled={selectedLetters.length === 0}
-          className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-        >
-          Clear
-        </button>
-        <button
-          onClick={onWordSubmit}
-          disabled={currentWord.length < 3}
-          className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-        >
-          Submit Word
-        </button>
+      <div className="flex space-x-4 justify-center">
+        {selectedLetters.length > 0 && (
+          <button
+            onClick={onClearSelection}
+            className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 neon-button"
+          >
+            Clear Selection
+          </button>
+        )}
       </div>
     </div>
   );
