@@ -10,7 +10,7 @@ const letterFrequencies = {
 };
 
 // Comprehensive word dictionary organized by length
-const wordDictionary = {
+export const wordDictionary = {
   3: [
     'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HAD', 'HER', 'WAS', 'ONE', 'OUR', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HIS', 'HOW', 'MAN', 'NEW', 'NOW', 'OLD', 'SEE', 'TWO', 'WHO', 'BOY', 'DID', 'ITS', 'LET', 'PUT', 'SAY', 'SHE', 'TOO', 'USE', 'WAY',
     'ART', 'CAR', 'CAT', 'DOG', 'EAT', 'EYE', 'FAR', 'FUN', 'GOT', 'HOT', 'JOB', 'LOT', 'MAY', 'RUN', 'SUN', 'TEN', 'YES', 'YET', 'RED', 'BIG', 'END', 'ASK', 'MEN', 'TRY', 'OWN', 'WAR', 'OIL', 'SIT', 'SET', 'WIN', 'LOW', 'CUT', 'HIT', 'LAW', 'ARM', 'AGE', 'ACT', 'AIR', 'BIT', 'BOX', 'CUP', 'DIE', 'EAR', 'EGG', 'FEW', 'FLY', 'GUN', 'ICE', 'JOY', 'KEY', 'LIE', 'MAP', 'NET', 'PEN', 'POT', 'ROW', 'SEA', 'SKY', 'TOP', 'TOY', 'VAN', 'WET', 'ZOO',

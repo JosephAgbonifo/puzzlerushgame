@@ -4,7 +4,7 @@ import LetterWheel from './LetterWheel';
 import WordList from './WordList';
 import GameStats from './GameStats';
 import { GameState, WordData, Letter } from '../types/game';
-import { generateLetterSet, validateWord, getWordScore, playSound } from '../utils/gameUtils';
+import { generateLetterSet, validateWord, getWordScore, playSound, wordDictionary } from '../utils/gameUtils';
 import { getStoredProgress, saveProgress } from '../utils/storage';
 
 const WordPuzzleGame: React.FC = () => {
