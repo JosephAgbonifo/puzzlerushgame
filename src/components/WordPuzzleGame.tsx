@@ -282,10 +282,6 @@ const WordPuzzleGame: React.FC = () => {
     initializeGame();
   };
 
-  const handleRestart = () => {
-    initializeGame();
-  };
-
   const toggleSound = () => {
     setGameState(prev => ({
       ...prev,
