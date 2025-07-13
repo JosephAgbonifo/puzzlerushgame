@@ -9,6 +9,7 @@ interface LetterWheelProps {
   onLetterDeselect: (letterId: string) => void;
   onWordSubmit: () => void;
   onClearSelection: () => void;
+  incorrectSelection?: boolean;
 }
 
 const PuzzlePiece: React.FC<{ 
@@ -97,6 +98,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   onLetterDeselect,
   onWordSubmit,
   onClearSelection
+  incorrectSelection = false
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPath, setDragPath] = useState<{ x: number; y: number }[]>([]);
@@ -251,7 +253,9 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       {/* Puzzle Wheel */}
       <div 
         ref={wheelRef}
-        className="relative bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 rounded-full shadow-2xl border-4 border-orange-300"
+        className={`relative bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 rounded-full shadow-2xl border-4 border-orange-300 transition-all duration-200 ${
+          incorrectSelection ? 'ring-4 ring-red-500 ring-opacity-50' : ''
+        }`}
         style={{ width: '300px', height: '300px' }}
         onKeyDown={handleKeyDown}
         tabIndex={0}

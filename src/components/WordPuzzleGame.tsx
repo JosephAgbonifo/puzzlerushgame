@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Lightbulb, RotateCcw, Volume2, VolumeX } from 'lucide-react';
+import { Trophy, Lightbulb } from 'lucide-react';
 import LetterWheel from './LetterWheel';
 import WordList from './WordList';
 import GameStats from './GameStats';
+import TopNavigation from './TopNavigation';
 import { GameState, WordData, Letter } from '../types/game';
 import { generateLetterSet, validateWord, getWordScore, playSound, wordDictionary } from '../utils/gameUtils';
 import { getStoredProgress, saveProgress } from '../utils/storage';
@@ -26,6 +27,9 @@ const WordPuzzleGame: React.FC = () => {
   const [showHint, setShowHint] = useState(false);
   const [gameMessage, setGameMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [volume, setVolume] = useState(75);
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [incorrectSelection, setIncorrectSelection] = useState(false);
 
   const handleStartGame = () => {
     setGameStarted(true);
@@ -175,27 +179,19 @@ const WordPuzzleGame: React.FC = () => {
 
   const handleWordSubmit = async () => {
     if (gameState.currentWord.length < 3) {
-      setGameMessage('Words must be at least 3 letters long!');
+      showIncorrectFeedback('Words must be at least 3 letters long!');
       return;
     }
 
     const wordData = gameState.availableWords.find(w => w.word === gameState.currentWord);
     
     if (!wordData) {
-      setGameMessage('Not a valid word!');
-      if (gameState.soundEnabled) {
-        playSound('error');
-      }
-      handleClearSelection();
+      showIncorrectFeedback('Not a valid word!');
       return;
     }
 
     if (gameState.discoveredWords.some(w => w.word === gameState.currentWord)) {
-      setGameMessage('Already found this word!');
-      if (gameState.soundEnabled) {
-        playSound('error');
-      }
-      handleClearSelection();
+      showIncorrectFeedback('Already found this word!');
       return;
     }
 
@@ -227,6 +223,26 @@ const WordPuzzleGame: React.FC = () => {
         playSound('levelComplete');
       }
     }
+  };
+
+  const showIncorrectFeedback = (message: string) => {
+    setGameMessage(message);
+    setIncorrectSelection(true);
+    
+    if (gameState.soundEnabled) {
+      playSound('error');
+    }
+    
+    // Haptic feedback for mobile devices
+    if ('vibrate' in navigator) {
+      navigator.vibrate(100);
+    }
+    
+    // Auto-clear after 0.5s
+    setTimeout(() => {
+      handleClearSelection();
+      setIncorrectSelection(false);
+    }, 500);
   };
 
   const handleClearSelection = () => {
@@ -275,6 +291,24 @@ const WordPuzzleGame: React.FC = () => {
       ...prev,
       soundEnabled: !prev.soundEnabled
     }));
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+  };
+
+  const handleWalletConnect = () => {
+    setIsWalletConnected(!isWalletConnected);
+  };
+
+  const handleRestart = () => {
+    clearProgress();
+    setGameState(prev => ({
+      ...prev,
+      level: 1,
+      totalScore: 0
+    }));
+    initializeGame();
   };
 
   const progressPercentage = gameState.availableWords.length > 0 
@@ -347,100 +381,92 @@ const WordPuzzleGame: React.FC = () => {
     );
   }
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto text-white">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent neon-text">Puzzle Rush</h1>
-          <p className="text-orange-300 font-semibold">Level {gameState.level}</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={toggleSound}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
-          >
-            {gameState.soundEnabled ? (
-              <Volume2 className="h-5 w-5 text-white" />
-            ) : (
-              <VolumeX className="h-5 w-5 text-white" />
-            )}
-          </button>
-          <button
-            onClick={handleRestart}
-            className="p-3 rounded-full bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
-          >
-            <RotateCcw className="h-5 w-5 text-white" />
-          </button>
-        </div>
-      </div>
-
-      {/* Game Stats */}
-      <GameStats
-        score={gameState.score}
-        totalScore={gameState.totalScore}
+    <div className="min-h-screen text-white">
+      {/* Top Navigation */}
+      <TopNavigation
         level={gameState.level}
-        foundWords={gameState.discoveredWords.length}
-        totalWords={gameState.availableWords.length}
-        progressPercentage={progressPercentage}
+        soundEnabled={gameState.soundEnabled}
+        volume={volume}
+        isWalletConnected={isWalletConnected}
+        onVolumeChange={handleVolumeChange}
+        onSoundToggle={toggleSound}
+        onRestart={handleRestart}
+        onWalletConnect={handleWalletConnect}
       />
 
-      {/* Game Message */}
-      {gameMessage && (
-        <div className="text-center mb-4">
-          <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
-            gameMessage.includes('Excellent!') || gameMessage.includes('Complete') ? 'bg-green-500 text-white neon-success' :
-            gameMessage.includes('Not a valid') || gameMessage.includes('Already found') ? 'bg-red-500 text-white neon-error' :
-            'bg-orange-500 text-white neon-info'
-          }`}>
-            {gameMessage}
-          </div>
-        </div>
-      )}
-
       {/* Main Game Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Letter Wheel */}
-        <div className="flex flex-col items-center">
-          <LetterWheel
-            letters={gameState.letters}
-            selectedLetters={gameState.selectedLetters}
-            currentWord={gameState.currentWord}
-            onLetterSelect={handleLetterSelect}
-            onLetterDeselect={handleLetterDeselect}
-            onWordSubmit={handleWordSubmit}
-            onClearSelection={handleClearSelection}
-          />
-          
-          {/* Controls */}
-          <div className="flex space-x-4 mt-6">
-            <button
-              onClick={handleHint}
-              disabled={gameState.hintsUsed >= 3}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
-            >
-              <Lightbulb className="h-4 w-4" />
-              <span>Hint ({3 - gameState.hintsUsed})</span>
-            </button>
-            
-            {gameState.isComplete && (
-              <button
-                onClick={handleNextLevel}
-                className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl neon-button"
-              >
-                <Trophy className="h-4 w-4" />
-                <span>Next Level</span>
-              </button>
-            )}
-          </div>
-        </div>
+      <div className="pt-[60px] p-4 max-w-4xl mx-auto">
+        {/* Game Stats */}
+        <GameStats
+          score={gameState.score}
+          totalScore={gameState.totalScore}
+          level={gameState.level}
+          foundWords={gameState.discoveredWords.length}
+          totalWords={gameState.availableWords.length}
+          progressPercentage={progressPercentage}
+        />
 
-        {/* Word List */}
-        <div>
-          <WordList
-            availableWords={gameState.availableWords}
-            discoveredWords={gameState.discoveredWords}
-            currentWord={gameState.currentWord}
-          />
+        {/* Game Message */}
+        {gameMessage && (
+          <div className="text-center mb-4">
+            <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              gameMessage.includes('Excellent!') || gameMessage.includes('Complete') ? 'bg-green-500 text-white neon-success' :
+              gameMessage.includes('Not a valid') || gameMessage.includes('Already found') || gameMessage.includes('must be at least') ? 'bg-red-500 text-white neon-error animate-pulse' :
+              'bg-orange-500 text-white neon-info'
+            }`}>
+              {gameMessage}
+            </div>
+          </div>
+        )}
+
+        {/* Main Game Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Letter Wheel */}
+          <div className="flex flex-col items-center">
+            <div className={`transition-all duration-200 ${incorrectSelection ? 'animate-pulse' : ''}`}>
+              <LetterWheel
+                letters={gameState.letters}
+                selectedLetters={gameState.selectedLetters}
+                currentWord={gameState.currentWord}
+                onLetterSelect={handleLetterSelect}
+                onLetterDeselect={handleLetterDeselect}
+                onWordSubmit={handleWordSubmit}
+                onClearSelection={handleClearSelection}
+                incorrectSelection={incorrectSelection}
+              />
+            </div>
+            
+            {/* Controls */}
+            <div className="flex space-x-4 mt-6">
+              <button
+                onClick={handleHint}
+                disabled={gameState.hintsUsed >= 3}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-button focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-purple-900"
+              >
+                <Lightbulb className="h-4 w-4" />
+                <span>Hint ({3 - gameState.hintsUsed})</span>
+              </button>
+              
+              {gameState.isComplete && (
+                <button
+                  onClick={handleNextLevel}
+                  className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl neon-button focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-purple-900"
+                >
+                  <Trophy className="h-4 w-4" />
+                  <span>Next Level</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Word List */}
+          <div>
+            <WordList
+              availableWords={gameState.availableWords}
+              discoveredWords={gameState.discoveredWords}
+              currentWord={gameState.currentWord}
+            />
+          </div>
         </div>
       </div>
     </div>
