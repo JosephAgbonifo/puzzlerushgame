@@ -97,7 +97,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   onLetterSelect,
   onLetterDeselect,
   onWordSubmit,
-  onClearSelection
+  onClearSelection,
   incorrectSelection = false
 }) => {
   const [isDragging, setIsDragging] = useState(false);
