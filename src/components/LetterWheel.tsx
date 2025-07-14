@@ -152,7 +152,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       setMousePosition({ x, y });
       setDragPath([{ x, y }]);
     }
-  }, [selectedLetters, onLetterSelect]);
+  }, [selectedLetters, onLetterSelect, disabled]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !wheelRef.current || disabled) return;
@@ -192,7 +192,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       setMousePosition({ x, y });
       setDragPath([{ x, y }]);
     }
-  }, [selectedLetters, onLetterSelect]);
+  }, [selectedLetters, onLetterSelect, disabled]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging || !wheelRef.current || disabled) return;
@@ -261,7 +261,6 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
         className={`relative bg-gradient-to-br from-primary-600 via-primary-500 to-primary-400 rounded-full shadow-2xl border-4 border-gold-400 transition-all duration-200 ${
           incorrectSelection ? 'ring-4 ring-rose-500 ring-opacity-50' : ''
         } ${disabled ? 'opacity-50' : ''}`}
-        }`}
         style={{ width: '300px', height: '300px' }}
         onKeyDown={handleKeyDown}
         tabIndex={0}
@@ -295,7 +294,6 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
                 strokeWidth="4"
                 className="drop-shadow-sm"
               />
-            </div>
             );
           })}
           
@@ -339,8 +337,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
           const selectionOrder = selectedLetters.findIndex(l => l.id === letter.id) + 1;
 
           return (
-            <div key={letter.id} className={`puzzle-piece ${isSelected ? 'selected' : ''} ${incorrectSelection && isSelected ? 'incorrect' : ''}`}>
-              <PuzzlePiece
+            <PuzzlePiece
               key={letter.id}
               letter={letter.char}
               isSelected={isSelected}
