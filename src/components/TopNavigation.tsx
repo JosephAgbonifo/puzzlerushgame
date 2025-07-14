@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Volume2, VolumeX, RotateCcw, Wallet, Wifi, WifiOff } from 'lucide-react';
+import { Settings, Volume2, VolumeX, RotateCcw, Wallet, Wifi, WifiOff, User, Target } from 'lucide-react';
+import { PlayerProfile } from '../types/game';
 
 interface TopNavigationProps {
   level: number;
@@ -10,6 +11,9 @@ interface TopNavigationProps {
   onSoundToggle: () => void;
   onRestart: () => void;
   onWalletConnect: () => void;
+  onShowProfile: () => void;
+  onShowMissions: () => void;
+  playerProfile: PlayerProfile | null;
 }
 
 const TopNavigation: React.FC<TopNavigationProps> = ({
@@ -20,7 +24,10 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   onVolumeChange,
   onSoundToggle,
   onRestart,
-  onWalletConnect
+  onWalletConnect,
+  onShowProfile,
+  onShowMissions,
+  playerProfile
 }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
@@ -128,15 +135,35 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           {/* Center Section - Title and Level */}
           <div className="flex flex-col items-center justify-center flex-1">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-gold-400 to-gold-600 bg-clip-text text-transparent leading-tight">
-              Puzzle Rush
+              Puzzle Rush: Hourly
             </h1>
             <div className="text-lg font-semibold text-gray-200 leading-tight">
-              Level {level}
+              Level {level} • {playerProfile?.totalXP.toLocaleString() || 0} XP
             </div>
           </div>
 
           {/* Right Section - Wallet */}
-          <div className="flex items-center space-x-4 min-w-[120px] justify-end">
+          <div className="flex items-center space-x-2 min-w-[200px] justify-end">
+            {/* Profile Button */}
+            <button
+              onClick={onShowProfile}
+              className="h-8 px-3 flex items-center space-x-2 rounded-lg bg-primary-700 hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 focus:ring-offset-primary-900 neon-purple"
+              aria-label="View profile"
+            >
+              <User className="w-4 h-4 text-gold-300" />
+              <span className="text-sm font-medium text-gold-300 hidden sm:inline">Profile</span>
+            </button>
+
+            {/* Missions Button */}
+            <button
+              onClick={onShowMissions}
+              className="h-8 px-3 flex items-center space-x-2 rounded-lg bg-primary-700 hover:bg-primary-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-primary-900 neon-emerald"
+              aria-label="View missions"
+            >
+              <Target className="w-4 h-4 text-emerald-300" />
+              <span className="text-sm font-medium text-emerald-300 hidden sm:inline">Missions</span>
+            </button>
+
             <div className="flex items-center space-x-2">
               {/* Connection Status Indicator */}
               <div className="flex items-center space-x-1">
