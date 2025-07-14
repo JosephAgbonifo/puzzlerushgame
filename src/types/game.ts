@@ -28,7 +28,6 @@ export interface GameProgress {
   level: number;
   totalScore: number;
   soundEnabled: boolean;
-  volume: number;
 }
 
 export interface LetterSet {

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import LetterWheel from './LetterWheel';
 import WordList from './WordList';
 import GameStats from './GameStats';
 import TopNavigation from './TopNavigation';
+import Timer from './Timer';
+import CongratulationsPage from './CongratulationsPage';
 import { GameState, WordData, Letter } from '../types/game';
 import { generateLetterSet, validateWord, getWordScore, playSound, wordDictionary } from '../utils/gameUtils';
 import { getStoredProgress, saveProgress } from '../utils/storage';
@@ -30,6 +32,10 @@ const WordPuzzleGame: React.FC = () => {
   const [volume, setVolume] = useState(75);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [incorrectSelection, setIncorrectSelection] = useState(false);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const [timerActive, setTimerActive] = useState(true);
+  const [timeBonus, setTimeBonus] = useState(0);
+  const [timerReset, setTimerReset] = useState(false);
 
   const handleStartGame = () => {
     setGameStarted(true);
@@ -127,7 +133,7 @@ const WordPuzzleGame: React.FC = () => {
   // Auto-submit when valid word is formed
   useEffect(() => {
     const checkAndSubmitWord = async () => {
-      if (gameState.currentWord.length >= 3) {
+      if (gameState.currentWord.length >= 3 && timerActive) {
         const isValid = await validateWord(gameState.currentWord);
         const wordData = gameState.availableWords.find(w => w.word === gameState.currentWord);
         const alreadyFound = gameState.discoveredWords.some(w => w.word === gameState.currentWord);
@@ -137,12 +143,17 @@ const WordPuzzleGame: React.FC = () => {
           setTimeout(() => {
             handleWordSubmit();
           }, 500); // Small delay for better UX
+        } else if (gameState.currentWord.length >= 3) {
+          // Auto-clear invalid words after 0.5s
+          setTimeout(() => {
+            showIncorrectFeedback('Not a valid word!');
+          }, 500);
         }
       }
     };
 
     checkAndSubmitWord();
-  }, [gameState.currentWord]);
+  }, [gameState.currentWord, timerActive]);
 
   const handleLetterSelect = (letter: Letter) => {
     if (gameState.selectedLetters.some(l => l.id === letter.id)) {
@@ -178,7 +189,7 @@ const WordPuzzleGame: React.FC = () => {
   };
 
   const handleWordSubmit = async () => {
-    if (gameState.currentWord.length < 3) {
+    if (gameState.currentWord.length < 3 || !timerActive) {
       showIncorrectFeedback('Words must be at least 3 letters long!');
       return;
     }
@@ -218,10 +229,22 @@ const WordPuzzleGame: React.FC = () => {
 
     // Check if level is complete
     if (newDiscoveredWords.length === gameState.availableWords.length) {
+      setTimerActive(false);
+      
+      // Calculate time bonus
+      const timeRemaining = Math.max(0, getTimeForLevel(gameState.level) - getElapsedTime());
+      const bonus = Math.floor(timeRemaining * 2); // 2 points per second remaining
+      setTimeBonus(bonus);
+      
       setGameMessage('🎊 Level Complete! Amazing work! 🎊');
       if (gameState.soundEnabled) {
         playSound('levelComplete');
       }
+      
+      // Show congratulations page after a brief delay
+      setTimeout(() => {
+        setShowCongratulations(true);
+      }, 1000);
     }
   };
 
@@ -238,7 +261,7 @@ const WordPuzzleGame: React.FC = () => {
       navigator.vibrate(100);
     }
     
-    // Auto-clear after 0.5s
+    // Auto-clear selection after 0.5s
     setTimeout(() => {
       handleClearSelection();
       setIncorrectSelection(false);
@@ -275,10 +298,15 @@ const WordPuzzleGame: React.FC = () => {
   };
 
   const handleNextLevel = () => {
+    setShowCongratulations(false);
     setGameState(prev => ({
       ...prev,
-      level: prev.level + 1
+      level: prev.level + 1,
+      totalScore: prev.totalScore + timeBonus
     }));
+    setTimerActive(true);
+    setTimerReset(prev => !prev);
+    setTimeBonus(0);
     initializeGame();
   };
 
@@ -299,12 +327,48 @@ const WordPuzzleGame: React.FC = () => {
 
   const handleRestart = () => {
     clearProgress();
+    setShowCongratulations(false);
+    setTimerActive(true);
+    setTimerReset(prev => !prev);
+    setTimeBonus(0);
     setGameState(prev => ({
       ...prev,
       level: 1,
       totalScore: 0
     }));
     initializeGame();
+  };
+
+  const handleTimeUp = () => {
+    setTimerActive(false);
+    setGameMessage('⏰ Time\'s up! Level failed. Try again!');
+    if (gameState.soundEnabled) {
+      playSound('error');
+    }
+    
+    // Restart level after 2 seconds
+    setTimeout(() => {
+      setTimerActive(true);
+      setTimerReset(prev => !prev);
+      initializeGame();
+    }, 2000);
+  };
+
+  // Helper functions for timer
+  const getTimeForLevel = (level: number): number => {
+    if (level <= 3) return 180; // 3 minutes for beginner levels
+    if (level <= 6) return 150; // 2.5 minutes for intermediate
+    if (level <= 10) return 120; // 2 minutes for advanced
+    if (level <= 15) return 90;  // 1.5 minutes for expert
+    return 60; // 1 minute for master levels
+  };
+
+  const getElapsedTime = (): number => {
+    // This would need to be tracked with a separate state in a real implementation
+    // For now, we'll estimate based on progress
+    const totalTime = getTimeForLevel(gameState.level);
+    const progress = gameState.discoveredWords.length / gameState.availableWords.length;
+    return Math.floor(totalTime * progress);
   };
 
   const progressPercentage = gameState.availableWords.length > 0 
@@ -377,7 +441,7 @@ const WordPuzzleGame: React.FC = () => {
     );
   }
   return (
-    <div className="min-h-screen text-white">
+    <div className="game-background text-white">
       {/* Top Navigation */}
       <TopNavigation
         level={gameState.level}
@@ -392,23 +456,35 @@ const WordPuzzleGame: React.FC = () => {
 
       {/* Main Game Area */}
       <div className="pt-[60px] p-4 max-w-4xl mx-auto">
+        {/* Timer */}
+        <div className="mb-6">
+          <Timer
+            level={gameState.level}
+            isActive={timerActive && !gameState.isComplete}
+            onTimeUp={handleTimeUp}
+            onReset={timerReset}
+          />
+        </div>
+
         {/* Game Stats */}
-        <GameStats
+        <div className="stats-card mb-6">
+          <GameStats
           score={gameState.score}
           totalScore={gameState.totalScore}
           level={gameState.level}
           foundWords={gameState.discoveredWords.length}
           totalWords={gameState.availableWords.length}
           progressPercentage={progressPercentage}
-        />
+          />
+        </div>
 
         {/* Game Message */}
         {gameMessage && (
           <div className="text-center mb-4">
             <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              gameMessage.includes('Excellent!') || gameMessage.includes('Complete') ? 'bg-green-500 text-white neon-success' :
-              gameMessage.includes('Not a valid') || gameMessage.includes('Already found') || gameMessage.includes('must be at least') ? 'bg-red-500 text-white neon-error animate-pulse' :
-              'bg-orange-500 text-white neon-info'
+              gameMessage.includes('Excellent!') || gameMessage.includes('Complete') ? 'emerald-accent neon-emerald' :
+              gameMessage.includes('Not a valid') || gameMessage.includes('Already found') || gameMessage.includes('must be at least') || gameMessage.includes('Time\'s up') ? 'rose-accent neon-rose animate-pulse' :
+              'gold-accent neon-gold'
             }`}>
               {gameMessage}
             </div>
@@ -419,7 +495,7 @@ const WordPuzzleGame: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Letter Wheel */}
           <div className="flex flex-col items-center">
-            <div className={`transition-all duration-200 ${incorrectSelection ? 'animate-pulse' : ''}`}>
+            <div className={`transition-all duration-200 ${incorrectSelection ? 'animate-pulse' : ''} ${!timerActive ? 'opacity-50 pointer-events-none' : ''}`}>
               <LetterWheel
                 letters={gameState.letters}
                 selectedLetters={gameState.selectedLetters}
@@ -427,8 +503,8 @@ const WordPuzzleGame: React.FC = () => {
                 onLetterSelect={handleLetterSelect}
                 onLetterDeselect={handleLetterDeselect}
                 onWordSubmit={handleWordSubmit}
-                onClearSelection={handleClearSelection}
                 incorrectSelection={incorrectSelection}
+                disabled={!timerActive}
               />
             </div>
             
@@ -436,22 +512,12 @@ const WordPuzzleGame: React.FC = () => {
             <div className="flex space-x-4 mt-6">
               <button
                 onClick={handleHint}
-                disabled={gameState.hintsUsed >= 3}
-                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-button focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-purple-900"
+                disabled={gameState.hintsUsed >= 3 || !timerActive}
+                className="flex items-center space-x-2 px-4 py-2 gold-accent rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-gold focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 focus:ring-offset-primary-900"
               >
                 <Lightbulb className="h-4 w-4" />
                 <span>Hint ({3 - gameState.hintsUsed})</span>
               </button>
-              
-              {gameState.isComplete && (
-                <button
-                  onClick={handleNextLevel}
-                  className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl neon-button focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-purple-900"
-                >
-                  <Trophy className="h-4 w-4" />
-                  <span>Next Level</span>
-                </button>
-              )}
             </div>
           </div>
 
@@ -465,6 +531,17 @@ const WordPuzzleGame: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Congratulations Page */}
+      <CongratulationsPage
+        level={gameState.level}
+        score={gameState.score}
+        timeBonus={timeBonus}
+        wordsFound={gameState.discoveredWords.length}
+        totalWords={gameState.availableWords.length}
+        onContinue={handleNextLevel}
+        isVisible={showCongratulations}
+      />
     </div>
   );
 };

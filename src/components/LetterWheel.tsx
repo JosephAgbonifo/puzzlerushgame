@@ -8,8 +8,8 @@ interface LetterWheelProps {
   onLetterSelect: (letter: Letter) => void;
   onLetterDeselect: (letterId: string) => void;
   onWordSubmit: () => void;
-  onClearSelection: () => void;
   incorrectSelection?: boolean;
+  disabled?: boolean;
 }
 
 const PuzzlePiece: React.FC<{ 
@@ -97,8 +97,8 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   onLetterSelect,
   onLetterDeselect,
   onWordSubmit,
-  onClearSelection,
-  incorrectSelection = false
+  incorrectSelection = false,
+  disabled = false
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPath, setDragPath] = useState<{ x: number; y: number }[]>([]);
@@ -137,6 +137,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   }, [letters, getLetterPosition]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent, letter?: Letter) => {
+    if (disabled) return;
     e.preventDefault();
     setIsDragging(true);
     
@@ -154,7 +155,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   }, [selectedLetters, onLetterSelect]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !wheelRef.current) return;
+    if (!isDragging || !wheelRef.current || disabled) return;
     
     const rect = wheelRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -167,7 +168,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
     if (letterAtPosition && !selectedLetters.some(l => l.id === letterAtPosition.id)) {
       onLetterSelect(letterAtPosition);
     }
-  }, [isDragging, selectedLetters, onLetterSelect, getLetterAtPosition]);
+  }, [isDragging, selectedLetters, onLetterSelect, getLetterAtPosition, disabled]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -175,6 +176,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   }, []);
 
   const handleTouchStart = useCallback((e: React.TouchEvent, letter?: Letter) => {
+    if (disabled) return;
     e.preventDefault();
     setIsDragging(true);
     
@@ -193,7 +195,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   }, [selectedLetters, onLetterSelect]);
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isDragging || !wheelRef.current) return;
+    if (!isDragging || !wheelRef.current || disabled) return;
     e.preventDefault();
     
     const touch = e.touches[0];
@@ -208,7 +210,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
     if (letterAtPosition && !selectedLetters.some(l => l.id === letterAtPosition.id)) {
       onLetterSelect(letterAtPosition);
     }
-  }, [isDragging, selectedLetters, onLetterSelect, getLetterAtPosition]);
+  }, [isDragging, selectedLetters, onLetterSelect, getLetterAtPosition, disabled]);
 
   const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
@@ -230,10 +232,9 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return;
     if (e.key === 'Enter' && currentWord.length >= 3) {
       onWordSubmit();
-    } else if (e.key === 'Escape') {
-      onClearSelection();
     }
   };
 
@@ -242,19 +243,24 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
       {/* Current Word Display */}
       <div className="h-16 flex items-center justify-center">
         {currentWord ? (
-          <div className="text-2xl font-bold text-white bg-gradient-to-r from-purple-600 to-orange-500 px-6 py-3 rounded-xl border-2 border-orange-300 shadow-xl">
+          <div className={`current-word text-2xl font-bold px-6 py-3 rounded-xl transition-all duration-200 ${
+            incorrectSelection ? 'invalid' : ''
+          }`}>
             {currentWord}
           </div>
         ) : (
-          <div className="text-purple-200 text-lg">Drag to connect puzzle pieces</div>
+          <div className="text-gray-300 text-lg">
+            {disabled ? 'Game Paused' : 'Drag to connect puzzle pieces'}
+          </div>
         )}
       </div>
 
       {/* Puzzle Wheel */}
       <div 
         ref={wheelRef}
-        className={`relative bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 rounded-full shadow-2xl border-4 border-orange-300 transition-all duration-200 ${
-          incorrectSelection ? 'ring-4 ring-red-500 ring-opacity-50' : ''
+        className={`relative bg-gradient-to-br from-primary-600 via-primary-500 to-primary-400 rounded-full shadow-2xl border-4 border-gold-400 transition-all duration-200 ${
+          incorrectSelection ? 'ring-4 ring-rose-500 ring-opacity-50' : ''
+        } ${disabled ? 'opacity-50' : ''}`}
         }`}
         style={{ width: '300px', height: '300px' }}
         onKeyDown={handleKeyDown}
@@ -289,6 +295,7 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
                 strokeWidth="4"
                 className="drop-shadow-sm"
               />
+            </div>
             );
           })}
           
@@ -315,12 +322,12 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
           {/* Gradient definitions */}
           <defs>
             <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f97316" />
-              <stop offset="100%" stopColor="#fb923c" />
+              <stop offset="0%" stopColor="var(--gold-500)" />
+              <stop offset="100%" stopColor="var(--gold-400)" />
             </linearGradient>
             <linearGradient id="activeConnectionGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#fbbf24" />
-              <stop offset="100%" stopColor="#f59e0b" />
+              <stop offset="0%" stopColor="var(--gold-400)" />
+              <stop offset="100%" stopColor="var(--gold-300)" />
             </linearGradient>
           </defs>
         </svg>
@@ -332,7 +339,8 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
           const selectionOrder = selectedLetters.findIndex(l => l.id === letter.id) + 1;
 
           return (
-            <PuzzlePiece
+            <div key={letter.id} className={`puzzle-piece ${isSelected ? 'selected' : ''} ${incorrectSelection && isSelected ? 'incorrect' : ''}`}>
+              <PuzzlePiece
               key={letter.id}
               letter={letter.char}
               isSelected={isSelected}
@@ -348,21 +356,9 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
         })}
 
         {/* Center Puzzle Hub */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-full shadow-xl border-4 border-purple-300 flex items-center justify-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full shadow-inner"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-gold-500 via-gold-400 to-gold-300 rounded-full shadow-xl border-4 border-primary-400 flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full shadow-inner"></div>
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex space-x-4 justify-center">
-        {selectedLetters.length > 0 && (
-          <button
-            onClick={onClearSelection}
-            className="px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 neon-button"
-          >
-            Clear Selection
-          </button>
-        )}
       </div>
     </div>
   );

@@ -19,46 +19,46 @@ const GameStats: React.FC<GameStatsProps> = ({
   progressPercentage
 }) => {
   return (
-    <div className="bg-gradient-to-r from-purple-800 to-purple-700 rounded-xl shadow-xl p-6 mb-6 border border-purple-600">
+    <div className="p-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Level Score */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Target className="h-5 w-5 text-orange-400" />
-            <span className="text-sm font-medium text-purple-200">Level Score</span>
+            <Target className="h-5 w-5 text-gold-400" />
+            <span className="text-sm font-medium text-gray-200">Level Score</span>
           </div>
-          <div className="text-2xl font-bold text-orange-300">{score}</div>
+          <div className="text-2xl font-bold text-gold-300">{score}</div>
         </div>
 
         {/* Total Score */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Trophy className="h-5 w-5 text-orange-600" />
-            <span className="text-sm font-medium text-purple-200">Total Score</span>
+            <Trophy className="h-5 w-5 text-gold-500" />
+            <span className="text-sm font-medium text-gray-200">Total Score</span>
           </div>
-          <div className="text-2xl font-bold text-orange-300">{totalScore}</div>
+          <div className="text-2xl font-bold text-gold-300">{totalScore}</div>
         </div>
 
         {/* Level */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Star className="h-5 w-5 text-orange-600" />
-            <span className="text-sm font-medium text-purple-200">Level</span>
+            <Star className="h-5 w-5 text-gold-500" />
+            <span className="text-sm font-medium text-gray-200">Level</span>
           </div>
-          <div className="text-2xl font-bold text-orange-300">{level}</div>
+          <div className="text-2xl font-bold text-gold-300">{level}</div>
         </div>
 
         {/* Progress */}
         <div className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <span className="text-sm font-medium text-purple-200">Progress</span>
+            <span className="text-sm font-medium text-gray-200">Progress</span>
           </div>
           <div className="text-lg font-semibold text-white">
             {foundWords} / {totalWords}
           </div>
-          <div className="w-full bg-purple-900 rounded-full h-2 mt-2">
+          <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
             <div 
-              className="bg-gradient-to-r from-orange-500 to-orange-400 h-2 rounded-full transition-all duration-500"
+              className="progress-bar h-2 rounded-full transition-all duration-500"
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>

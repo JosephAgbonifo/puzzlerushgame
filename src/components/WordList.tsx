@@ -25,18 +25,18 @@ const WordList: React.FC<WordListProps> = ({
   const sortedLengths = Object.keys(groupedWords).map(Number).sort((a, b) => a - b);
 
   return (
-    <div className="bg-gradient-to-br from-purple-800 to-purple-700 rounded-xl shadow-xl p-6 h-full border border-purple-600">
+    <div className="bg-gradient-to-br from-primary-800 to-primary-700 rounded-xl shadow-xl p-6 h-full border border-gold-400/30">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-orange-300">Words Found</h2>
-        <div className="text-sm text-purple-200">
+        <h2 className="text-xl font-bold text-gold-300">Words Found</h2>
+        <div className="text-sm text-gray-200">
           {discoveredWords.length} / {availableWords.length}
         </div>
       </div>
 
-      <div className="space-y-4 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-purple-800">
+      <div className="space-y-4 max-h-96 overflow-y-auto custom-scrollbar">
         {sortedLengths.map(length => (
-          <div key={length} className="border-b border-purple-600 pb-3">
-            <h3 className="text-lg font-semibold text-purple-200 mb-2">
+          <div key={length} className="border-b border-gold-400/20 pb-3">
+            <h3 className="text-lg font-semibold text-gray-200 mb-2">
               {length} Letters
             </h3>
             <div className="grid grid-cols-2 gap-2">
@@ -49,28 +49,28 @@ const WordList: React.FC<WordListProps> = ({
                     key={index}
                     className={`flex items-center justify-between p-2 rounded-lg transition-all duration-200 ${
                       isFound
-                        ? 'bg-gradient-to-r from-green-600 to-green-500 text-white'
+                        ? 'emerald-accent text-white neon-emerald'
                         : isCurrentWord
-                        ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white animate-pulse'
-                        : 'bg-purple-900 text-purple-300'
+                        ? 'gold-accent text-primary-900 animate-pulse neon-gold'
+                        : 'bg-primary-900 text-gray-300'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
                       {isFound ? (
                         <Check className="h-4 w-4 text-white" />
                       ) : (
-                        <Lock className="h-4 w-4 text-purple-400" />
+                        <Lock className="h-4 w-4 text-gray-400" />
                       )}
                       <span className={`font-medium ${
-                        isFound ? 'text-white' : 'text-purple-300'
+                        isFound ? 'text-white' : 'text-gray-300'
                       }`}>
                         {isFound ? word.word : '•'.repeat(word.word.length)}
                       </span>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded ${
                       isFound 
-                        ? 'bg-green-700 text-white' 
-                        : 'bg-purple-800 text-purple-300'
+                        ? 'bg-emerald-700 text-white' 
+                        : 'bg-primary-800 text-gray-300'
                     }`}>
                       {word.score}
                     </span>
@@ -83,7 +83,7 @@ const WordList: React.FC<WordListProps> = ({
       </div>
 
       {discoveredWords.length === 0 && (
-        <div className="text-center py-8 text-purple-300">
+        <div className="text-center py-8 text-gray-300">
           <p>No words found yet.</p>
           <p className="text-sm mt-2">Start connecting puzzle pieces to discover words!</p>
         </div>
