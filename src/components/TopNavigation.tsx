@@ -55,6 +55,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 h-[60px] bg-gradient-to-r from-purple-900 via-purple-800 to-purple-900 border-b border-purple-600 shadow-lg">
+      </nav>
       <nav className="fixed top-0 left-0 right-0 z-50 h-[60px] bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 border-b border-gold-400/30 shadow-lg">
         <div className="flex items-center justify-between h-full px-4 max-w-7xl mx-auto">
           {/* Left Section - Settings */}
