@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, Zap, Gift, Star } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Clock, Zap, Gift, Star } from "lucide-react";
 
 interface HourlyPuzzleTimerProps {
   nextPuzzleTime: Date;
@@ -12,7 +12,7 @@ const HourlyPuzzleTimer: React.FC<HourlyPuzzleTimerProps> = ({
   nextPuzzleTime,
   currentPuzzleExpiry,
   isRarePuzzle = false,
-  onPuzzleExpired
+  onPuzzleExpired,
 }) => {
   const [timeUntilNext, setTimeUntilNext] = useState<number>(0);
   const [timeUntilExpiry, setTimeUntilExpiry] = useState<number>(0);
@@ -44,90 +44,111 @@ const HourlyPuzzleTimer: React.FC<HourlyPuzzleTimerProps> = ({
     const seconds = totalSeconds % 60;
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
     }
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  const getUrgencyLevel = (timeLeft: number): 'normal' | 'warning' | 'critical' => {
+  const getUrgencyLevel = (
+    timeLeft: number
+  ): "normal" | "warning" | "critical" => {
     const minutes = timeLeft / (1000 * 60);
-    if (minutes <= 5) return 'critical';
-    if (minutes <= 15) return 'warning';
-    return 'normal';
+    if (minutes <= 5) return "critical";
+    if (minutes <= 15) return "warning";
+    return "normal";
   };
 
   const urgencyLevel = getUrgencyLevel(timeUntilExpiry);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative z-10">
       {/* Current Puzzle Timer */}
-      <div className={`timer-container ${isRarePuzzle ? 'rare-puzzle' : ''}`}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            {isRarePuzzle ? (
-              <Gift className="w-5 h-5 text-gold-400 animate-pulse" />
-            ) : (
-              <Clock className="w-5 h-5 text-gold-400" />
-            )}
-            <span className="text-sm font-medium text-gray-200">
-              {isRarePuzzle ? 'Rare Puzzle Active!' : 'Current Puzzle'}
-            </span>
-            {isRarePuzzle && (
-              <Star className="w-4 h-4 text-gold-400 animate-spin" />
-            )}
-          </div>
-          <div className="flex items-center space-x-2">
-            {urgencyLevel === 'critical' && (
-              <Zap className="w-4 h-4 text-rose-400 animate-pulse" />
-            )}
-            <span className={`text-lg font-bold ${
-              urgencyLevel === 'critical' ? 'text-rose-400 animate-pulse' : 
-              urgencyLevel === 'warning' ? 'text-orange-400' : 'text-gold-400'
-            }`}>
-              {formatTime(timeUntilExpiry)}
-            </span>
-          </div>
-        </div>
-        
-        <div className="relative">
-          <div className="w-full bg-gray-700 rounded-full h-3">
-            <div 
-              className={`h-3 rounded-full transition-all duration-1000 ${
-                isRarePuzzle ? 'bg-gradient-to-r from-gold-500 via-orange-400 to-rose-400 animate-pulse' :
-                urgencyLevel === 'critical' ? 'bg-gradient-to-r from-rose-500 to-rose-400 animate-pulse' :
-                urgencyLevel === 'warning' ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
-                'bg-gradient-to-r from-gold-500 to-gold-400'
-              }`}
-              style={{ 
-                width: `${Math.max(0, (timeUntilExpiry / (60 * 60 * 1000)) * 100)}%` 
-              }}
-            />
-          </div>
-          <div className="flex justify-between mt-2 text-xs text-gray-400">
-            <span>Expires</span>
-            {isRarePuzzle && (
-              <span className="text-gold-400 font-medium animate-pulse">
-                🎁 RARE DROP 🎁
+      <div className="md:flex items-center md:h-28 justify-center mt-7 gap-7">
+        <div
+          className={`p-5 md:flex-1 h-28 mb-3 md:mb-0 rounded-lg z-[99] bg-purple-950 ${
+            isRarePuzzle ? "rare-puzzle" : ""
+          }`}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              {isRarePuzzle ? (
+                <Gift className="w-5 h-5 text-gold-400 animate-pulse" />
+              ) : (
+                <Clock className="w-5 h-5 text-gold-400" />
+              )}
+              <span className="text-xs font-medium text-brown">
+                {isRarePuzzle ? "Rare Puzzle Active!" : "Current Puzzle Active"}
               </span>
-            )}
-            <span>1 Hour</span>
+              {isRarePuzzle && (
+                <Star className="w-4 h-4 text-gold-400 animate-spin" />
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              {urgencyLevel === "critical" && (
+                <Zap className="w-4 h-4 text-rose-400 animate-pulse" />
+              )}
+              <span
+                className={`text-sm font-bold ${
+                  urgencyLevel === "critical"
+                    ? "text-rose-400 animate-pulse"
+                    : urgencyLevel === "warning"
+                    ? "text-orange-400"
+                    : "text-gold-400"
+                }`}
+              >
+                {formatTime(timeUntilExpiry)}
+              </span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Next Puzzle Countdown */}
-      <div className="bg-primary-800/50 rounded-lg p-4 border border-gold-400/20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm text-gray-300">Next Puzzle</span>
+          <div className="relative">
+            <div className="w-full bg-gray-700 rounded-full h-3">
+              <div
+                className={`h-3 rounded-full transition-all duration-1000 ${
+                  isRarePuzzle
+                    ? "bg-gradient-to-r from-gold-500 via-orange-400 to-rose-400 animate-pulse"
+                    : urgencyLevel === "critical"
+                    ? "bg-gradient-to-r from-rose-500 to-rose-400 animate-pulse"
+                    : urgencyLevel === "warning"
+                    ? "bg-gradient-to-r from-orange-500 to-orange-400"
+                    : "bg-gradient-to-r from-gold-500 to-gold-400"
+                }`}
+                style={{
+                  width: `${Math.max(
+                    0,
+                    (timeUntilExpiry / (60 * 60 * 1000)) * 100
+                  )}%`,
+                }}
+              />
+            </div>
+            <div className="flex justify-between mt-2 text-xs text-gray-400">
+              <span>Expires</span>
+              {isRarePuzzle && (
+                <span className="text-gold-400 font-medium animate-pulse">
+                  🎁 RARE DROP 🎁
+                </span>
+              )}
+              <span>1 Hour</span>
+            </div>
           </div>
-          <span className="text-emerald-400 font-bold">
-            {formatTime(timeUntilNext)}
-          </span>
         </div>
-        <div className="mt-2 text-xs text-gray-400 text-center">
-          New puzzles drop every hour on the hour
+
+        {/* Next Puzzle Countdown */}
+        <div className="bg-amber-600 h-28 md:flex-1 text-amber-950 rounded-lg p-4 border border-gold-400/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-bold">Next Puzzle</span>
+            </div>
+            <span className="bg-amber-950 text-orange-400 p-2 rounded-lg font-bold">
+              {formatTime(timeUntilNext)}
+            </span>
+          </div>
+          <div className="mt-2 text-xs text-gray-400 text-center">
+            New puzzles drop every hour on the hour
+          </div>
         </div>
       </div>
 

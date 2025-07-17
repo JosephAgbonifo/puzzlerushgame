@@ -1,21 +1,44 @@
 // Honeycomb SDK integration for on-chain missions and identity
+interface MissionMetadata {
+  category: string;
+  difficulty: "easy" | "medium" | "hard" | "expert" | "master"; // optional: restrict to known values
+  xpReward: number;
+}
+
+interface MissionResults {
+  completionTime: number; // or Date, depending on your use
+  accuracy: number;
+  wordsFound: string[];
+  xpEarned: number;
+}
+interface Trait {
+  name: string;
+  level: number;
+}
+interface PuzzleProof {
+  timeTaken: number;
+  wordsFound: string[];
+  hash: string;
+  [key: string]: unknown; // ✅ no more 'any'
+}
+
 export class HoneycombService {
   private apiKey: string;
   private baseUrl: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.baseUrl = 'https://api.honeycomb.gg/v1';
+    this.baseUrl = "https://api.honeycomb.gg/v1";
   }
 
   // Mission Management
-  async createMission(puzzleId: string, metadata: any) {
+  async createMission(puzzleId: string, metadata: MissionMetadata) {
     try {
       const response = await fetch(`${this.baseUrl}/missions`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: puzzleId,
@@ -30,72 +53,85 @@ export class HoneycombService {
       });
       return await response.json();
     } catch (error) {
-      console.error('Failed to create mission:', error);
+      console.error("Failed to create mission:", error);
       throw error;
     }
   }
 
   async claimMission(missionId: string, walletAddress: string) {
     try {
-      const response = await fetch(`${this.baseUrl}/missions/${missionId}/claim`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          wallet_address: walletAddress,
-          claimed_at: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        `${this.baseUrl}/missions/${missionId}/claim`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            wallet_address: walletAddress,
+            claimed_at: new Date().toISOString(),
+          }),
+        }
+      );
       return await response.json();
     } catch (error) {
-      console.error('Failed to claim mission:', error);
+      console.error("Failed to claim mission:", error);
       throw error;
     }
   }
 
-  async completeMission(missionId: string, walletAddress: string, results: any) {
+  async completeMission(
+    missionId: string,
+    walletAddress: string,
+    results: MissionResults
+  ) {
     try {
-      const response = await fetch(`${this.baseUrl}/missions/${missionId}/complete`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          wallet_address: walletAddress,
-          completion_time: results.completionTime,
-          accuracy: results.accuracy,
-          words_found: results.wordsFound,
-          xp_earned: results.xpEarned,
-          completed_at: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        `${this.baseUrl}/missions/${missionId}/complete`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            wallet_address: walletAddress,
+            completion_time: results.completionTime,
+            accuracy: results.accuracy,
+            words_found: results.wordsFound,
+            xp_earned: results.xpEarned,
+            completed_at: new Date().toISOString(),
+          }),
+        }
+      );
       return await response.json();
     } catch (error) {
-      console.error('Failed to complete mission:', error);
+      console.error("Failed to complete mission:", error);
       throw error;
     }
   }
 
   // Trait System
-  async updatePlayerTraits(walletAddress: string, traits: any[]) {
+  async updatePlayerTraits(walletAddress: string, traits: Trait[]) {
     try {
-      const response = await fetch(`${this.baseUrl}/players/${walletAddress}/traits`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          traits,
-          updated_at: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        `${this.baseUrl}/players/${walletAddress}/traits`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            traits,
+            updated_at: new Date().toISOString(),
+          }),
+        }
+      );
       return await response.json();
     } catch (error) {
-      console.error('Failed to update traits:', error);
+      console.error("Failed to update traits:", error);
       throw error;
     }
   }
@@ -104,24 +140,28 @@ export class HoneycombService {
     try {
       const response = await fetch(`${this.baseUrl}/players/${walletAddress}`, {
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
         },
       });
       return await response.json();
     } catch (error) {
-      console.error('Failed to get player profile:', error);
+      console.error("Failed to get player profile:", error);
       throw error;
     }
   }
 
   // Verification
-  async verifyPuzzleCompletion(puzzleId: string, walletAddress: string, proof: any) {
+  async verifyPuzzleCompletion(
+    puzzleId: string,
+    walletAddress: string,
+    proof: PuzzleProof
+  ) {
     try {
       const response = await fetch(`${this.baseUrl}/verify/puzzle`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           puzzle_id: puzzleId,
@@ -132,7 +172,7 @@ export class HoneycombService {
       });
       return await response.json();
     } catch (error) {
-      console.error('Failed to verify puzzle completion:', error);
+      console.error("Failed to verify puzzle completion:", error);
       throw error;
     }
   }

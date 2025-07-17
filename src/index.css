@@ -30,7 +30,7 @@
   --emerald-600: #059669;
   --emerald-500: #10b981;
   --emerald-400: #34d399;
-  
+
   --rose-600: #e11d48;
   --rose-500: #f43f5e;
   --rose-400: #fb7185;
@@ -49,12 +49,13 @@
 
 /* Dynamic Background with Color Theory */
 .game-background {
-  background: linear-gradient(135deg, 
-    var(--primary-900) 0%, 
-    var(--primary-800) 25%, 
-    var(--primary-700) 50%, 
-    var(--primary-600) 75%, 
-    var(--primary-500) 100%
+  background: linear-gradient(
+    135deg,
+    #111827 0%,
+    #0e131f 25%,
+    #0b1019 50%,
+    #080c13 75%,
+    #000000 100%
   );
   background-size: 400% 400%;
   animation: gradientShift 12s ease infinite;
@@ -62,9 +63,15 @@
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* Gold Accent Elements */
@@ -97,37 +104,27 @@
 
 /* Neon Glow Effects with Color Theory */
 .neon-gold {
-  box-shadow: 
-    0 0 10px rgba(251, 191, 36, 0.4),
-    0 0 20px rgba(251, 191, 36, 0.3),
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.3),
     0 0 30px rgba(251, 191, 36, 0.2);
   border: 1px solid rgba(251, 191, 36, 0.6);
 }
 
 .neon-gold:hover {
-  box-shadow: 
-    0 0 15px rgba(251, 191, 36, 0.6),
-    0 0 25px rgba(251, 191, 36, 0.4),
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.6), 0 0 25px rgba(251, 191, 36, 0.4),
     0 0 35px rgba(251, 191, 36, 0.3);
   border: 1px solid rgba(251, 191, 36, 0.8);
 }
 
 .neon-emerald {
-  box-shadow: 
-    0 0 10px rgba(16, 185, 129, 0.4),
-    0 0 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3);
 }
 
 .neon-rose {
-  box-shadow: 
-    0 0 10px rgba(244, 63, 94, 0.4),
-    0 0 20px rgba(244, 63, 94, 0.3);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.4), 0 0 20px rgba(244, 63, 94, 0.3);
 }
 
 .neon-purple {
-  box-shadow: 
-    0 0 10px rgba(139, 92, 246, 0.4),
-    0 0 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
 /* Timer Styles */
@@ -136,9 +133,7 @@
   border: 2px solid var(--gold-400);
   border-radius: 12px;
   padding: 16px;
-  box-shadow: 
-    0 0 20px rgba(251, 191, 36, 0.3),
-    0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3), 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .timer-bar {
@@ -155,8 +150,13 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Congratulations Page Styles */
@@ -170,15 +170,17 @@
   background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
   border: 3px solid var(--gold-400);
   border-radius: 20px;
-  box-shadow: 
-    0 0 40px rgba(251, 191, 36, 0.4),
-    0 20px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 40px rgba(251, 191, 36, 0.4), 0 20px 25px rgba(0, 0, 0, 0.2);
   animation: slideInUp 0.6s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInUp {
@@ -213,9 +215,16 @@
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
 }
 
 /* Word Display Enhancements */
@@ -224,9 +233,7 @@
   border: 2px solid var(--gold-400);
   color: var(--gold-100);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  box-shadow: 
-    0 0 20px rgba(251, 191, 36, 0.3),
-    0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3), 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .current-word.invalid {
@@ -236,8 +243,13 @@
 }
 
 @keyframes invalidPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 /* Game Stats Enhancements */
@@ -245,9 +257,7 @@
   background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
   border: 2px solid var(--gold-400);
   border-radius: 16px;
-  box-shadow: 
-    0 0 20px rgba(251, 191, 36, 0.2),
-    0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar {
@@ -260,7 +270,7 @@
   .timer-container {
     padding: 12px;
   }
-  
+
   .congratulations-card {
     margin: 16px;
     padding: 24px;
@@ -271,7 +281,7 @@
   .game-background {
     background-size: 600% 600%;
   }
-  
+
   .congratulations-card {
     margin: 8px;
     padding: 20px;
@@ -287,7 +297,7 @@
   .congratulations-card {
     animation: none;
   }
-  
+
   .puzzle-piece:hover {
     transform: none;
   }

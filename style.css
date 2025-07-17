@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Orbitron:wght@400..900&display=swap");
+
+.main-title {
+  font-family: "Orbitron", sans-serif;
+  animation: puzzleRush 1.2s ease-out 5;
+  letter-spacing: 0.1em;
+}
+
+body {
+  font-family: "Nunito", sans-serif;
+}
+
+.wallet-adapter-button {
+  background-color: #591a91 !important;
+  color: #ebe3f2 !important;
+  border-radius: 10px !important;
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  max-width: 300px !important;
+  margin: auto !important;
+  margin-bottom: 10px !important;
+  transition: all;
+  transition-duration: 500ms;
+}
+
+.wallet-adapter-button:hover {
+  background-color: #591a91 !important;
+  color: #ead2ff !important;
+}
+
+@keyframes puzzleRush {
+  0% {
+    letter-spacing: 0.3em;
+  }
+  40% {
+    letter-spacing: 0.2em;
+  }
+  60% {
+    letter-spacing: 0.4em;
+  }
+  100% {
+    letter-spacing: 0.1em;
+  }
+}
