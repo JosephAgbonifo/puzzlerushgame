@@ -1,11 +1,13 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Orbitron:wght@400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@400..900&display=swap");
 
 .main-title {
-  font-family: "Orbitron", sans-serif;
+  font-family: "Outfit", sans-serif;
   animation: puzzleRush 1.2s ease-out 5;
   letter-spacing: 0.1em;
 }
-
+.Outfit {
+  font-family: "Outfit", sans-serif;
+}
 body {
   font-family: "Nunito", sans-serif;
 }

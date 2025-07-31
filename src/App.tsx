@@ -9,17 +9,15 @@ import {
   PhantomWalletAdapter,
   SolflareWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
+import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
 function App() {
-  const network = "https://rpc.main.honeycombprotocol.com";
-  const endpoint = useMemo(() => network, [network]);
+  const network = WalletAdapterNetwork.Mainnet;
+  const endpoint = useMemo(() => "https://rpc.test.honeycombprotocol.com", []);
 
   const wallets = useMemo(
-    () => [
-      // Manually define specific/custom wallets here
-      new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
-    ],
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter({ network })],
     [network]
   );
 

@@ -19,115 +19,105 @@ const HourlyPuzzleTimer: React.FC<HourlyPuzzleTimerProps> = ({
 
   useEffect(() => {
     const updateTimers = () => {
-      const now = new Date().getTime();
-      const nextTime = nextPuzzleTime.getTime();
-      const expiryTime = currentPuzzleExpiry.getTime();
+      const now = Date.now();
+      const next = nextPuzzleTime.getTime();
+      const expiry = currentPuzzleExpiry.getTime();
 
-      setTimeUntilNext(Math.max(0, nextTime - now));
-      setTimeUntilExpiry(Math.max(0, expiryTime - now));
+      setTimeUntilNext(Math.max(0, next - now));
+      setTimeUntilExpiry(Math.max(0, expiry - now));
 
-      if (expiryTime <= now) {
+      if (expiry <= now) {
         onPuzzleExpired();
       }
     };
 
     updateTimers();
     const interval = setInterval(updateTimers, 1000);
-
     return () => clearInterval(interval);
   }, [nextPuzzleTime, currentPuzzleExpiry, onPuzzleExpired]);
 
-  const formatTime = (milliseconds: number): string => {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
-        .toString()
-        .padStart(2, "0")}`;
-    }
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return h > 0
+      ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      : `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const getUrgencyLevel = (
-    timeLeft: number
-  ): "normal" | "warning" | "critical" => {
-    const minutes = timeLeft / (1000 * 60);
-    if (minutes <= 5) return "critical";
-    if (minutes <= 15) return "warning";
+  const getUrgencyLevel = (ms: number) => {
+    const mins = ms / (1000 * 60);
+    if (mins <= 5) return "critical";
+    if (mins <= 15) return "warning";
     return "normal";
   };
 
-  const urgencyLevel = getUrgencyLevel(timeUntilExpiry);
+  const urgency = getUrgencyLevel(timeUntilExpiry);
+  const progressPercent = Math.max(
+    0,
+    (timeUntilExpiry / (60 * 60 * 1000)) * 100
+  );
 
   return (
-    <div className="space-y-4 relative z-10">
-      {/* Current Puzzle Timer */}
-      <div className="md:flex items-center md:h-28 justify-center mt-7 gap-7">
+    <div className="space-y-6 p-4 md:p-6">
+      <div className="grid grid-cols-1 gap-4">
+        {/* Current Puzzle */}
         <div
-          className={`p-5 md:flex-1 h-28 mb-3 md:mb-0 rounded-lg z-[99] bg-purple-950 ${
+          className={`rounded-lg md:p-5 bg-purple-950 h-20 flex flex-col justify-between ${
             isRarePuzzle ? "rare-puzzle" : ""
           }`}
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-medium text-brown">
               {isRarePuzzle ? (
-                <Gift className="w-5 h-5 text-gold-400 animate-pulse" />
+                <>
+                  <Gift className="w-4 h-4 text-yellow-400 animate-pulse" />
+                  Rare Puzzle Active!
+                  <Star className="w-3 h-3 text-yellow-400 animate-spin" />
+                </>
               ) : (
-                <Clock className="w-5 h-5 text-gold-400" />
-              )}
-              <span className="text-xs font-medium text-brown">
-                {isRarePuzzle ? "Rare Puzzle Active!" : "Current Puzzle Active"}
-              </span>
-              {isRarePuzzle && (
-                <Star className="w-4 h-4 text-gold-400 animate-spin" />
+                <>
+                  <Clock className="w-4 h-4 text-yellow-400" />
+                  Current Puzzle Active
+                </>
               )}
             </div>
-            <div className="flex items-center space-x-2">
-              {urgencyLevel === "critical" && (
-                <Zap className="w-4 h-4 text-rose-400 animate-pulse" />
+            <div className="flex items-center gap-2">
+              {urgency === "critical" && (
+                <Zap className="w-4 h-4 text-red-400 animate-pulse" />
               )}
               <span
                 className={`text-sm font-bold ${
-                  urgencyLevel === "critical"
-                    ? "text-rose-400 animate-pulse"
-                    : urgencyLevel === "warning"
+                  urgency === "critical"
+                    ? "text-red-400 animate-pulse"
+                    : urgency === "warning"
                     ? "text-orange-400"
-                    : "text-gold-400"
+                    : "text-yellow-400"
                 }`}
               >
                 {formatTime(timeUntilExpiry)}
               </span>
             </div>
           </div>
-
-          <div className="relative">
+          <div>
             <div className="w-full bg-gray-700 rounded-full h-3">
               <div
                 className={`h-3 rounded-full transition-all duration-1000 ${
                   isRarePuzzle
-                    ? "bg-gradient-to-r from-gold-500 via-orange-400 to-rose-400 animate-pulse"
-                    : urgencyLevel === "critical"
-                    ? "bg-gradient-to-r from-rose-500 to-rose-400 animate-pulse"
-                    : urgencyLevel === "warning"
-                    ? "bg-gradient-to-r from-orange-500 to-orange-400"
-                    : "bg-gradient-to-r from-gold-500 to-gold-400"
+                    ? "bg-gradient-to-r from-orange-600 via-orange-400 to-red-400 animate-pulse"
+                    : urgency === "critical"
+                    ? "bg-gradient-to-r from-red-500 to-red-400 animate-pulse"
+                    : "bg-gradient-to-r from-orange-500 to-yellow-400"
                 }`}
-                style={{
-                  width: `${Math.max(
-                    0,
-                    (timeUntilExpiry / (60 * 60 * 1000)) * 100
-                  )}%`,
-                }}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-400">
+            <div className="flex justify-between mt-1 text-xs text-gray-400">
               <span>Expires</span>
               {isRarePuzzle && (
-                <span className="text-gold-400 font-medium animate-pulse">
-                  🎁 RARE DROP 🎁
+                <span className="text-yellow-400 font-semibold animate-pulse">
+                  🎁 RARE DROP
                 </span>
               )}
               <span>1 Hour</span>
@@ -135,32 +125,29 @@ const HourlyPuzzleTimer: React.FC<HourlyPuzzleTimerProps> = ({
           </div>
         </div>
 
-        {/* Next Puzzle Countdown */}
-        <div className="bg-amber-600 h-28 md:flex-1 text-amber-950 rounded-lg p-4 border border-gold-400/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+        {/* Next Puzzle */}
+        <div className="bg-amber-600 text-amber-950 rounded-lg h-16 flex flex-col items-center justify-between border border-yellow-400/20">
+          <div className="flex items-center justify-between w-4/5 m-auto h-8">
+            <div className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
               <span className="text-sm font-bold">Next Puzzle</span>
             </div>
-            <span className="bg-amber-950 text-orange-400 p-2 rounded-lg font-bold">
+            <span className="bg-amber-950 text-orange-400 p-2 rounded-lg font-bold text-sm">
               {formatTime(timeUntilNext)}
             </span>
-          </div>
-          <div className="mt-2 text-xs text-gray-400 text-center">
-            New puzzles drop every hour on the hour
           </div>
         </div>
       </div>
 
-      {/* Puzzle Stats */}
-      <div className="grid grid-cols-2 gap-3 text-center">
-        <div className="bg-primary-800/30 rounded-lg p-3">
+      {/* Stats */}
+      <div className="hidden md:grid grid-cols-2 gap-4 text-center">
+        <div className="bg-primary-800/30 rounded-lg p-4">
           <div className="text-xs text-gray-400 mb-1">Today's Puzzles</div>
-          <div className="text-lg font-bold text-gold-300">
+          <div className="text-lg font-bold text-yellow-300">
             {new Date().getHours() + 1}/24
           </div>
         </div>
-        <div className="bg-primary-800/30 rounded-lg p-3">
+        <div className="bg-primary-800/30 rounded-lg p-4">
           <div className="text-xs text-gray-400 mb-1">Rare Chance</div>
           <div className="text-lg font-bold text-rose-400">10%</div>
         </div>

@@ -121,7 +121,6 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
   selectedLetters,
   currentWord,
   onLetterSelect,
-  onLetterDeselect,
   onWordSubmit,
   incorrectSelection = false,
   disabled = false,
@@ -294,11 +293,11 @@ const LetterWheel: React.FC<LetterWheelProps> = ({
     <div>
       <div className="flex flex-col items-center space-y-6">
         {/* Word Display */}
-        <div className="h-16 flex items-center justify-center">
+        <div className="h-10 flex items-center justify-center">
           {currentWord ? (
             <div
               className={clsx(
-                "text-2xl font-bold px-6 py-3 rounded-xl bg-white/10 backdrop-blur",
+                "text-2xl font-bold md:px-6 px-2 py-3 rounded-xl bg-white/10 backdrop-blur",
                 "transition-all duration-200 text-white",
                 incorrectSelection && "ring-2 ring-rose-500"
               )}

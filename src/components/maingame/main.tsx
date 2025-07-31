@@ -8,6 +8,7 @@ import HourlyPuzzleTimer from "../HourlyPuzzleTimer";
 import CongratulationsPage from "../CongratulationsPage";
 import PlayerProfile from "../PlayerProfile";
 import MissionPanel from "../MissionPanel";
+import { useView } from "../../context/ViewProvider";
 
 import {
   getStoredProgress,
@@ -577,6 +578,8 @@ export default function PuzzleRushGame() {
         100
       : 0;
 
+  const { view, setView } = useView();
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -590,8 +593,7 @@ export default function PuzzleRushGame() {
     );
   } else {
     return (
-      <div className="game-background relative text-white">
-        {/* Top Navigation */}
+      <div className="game-background max-w-[375px] m-auto relative text-white">
         <TopNavigation
           level={playerProfile?.level || 1}
           soundEnabled={gameState.soundEnabled}
@@ -604,108 +606,122 @@ export default function PuzzleRushGame() {
           onShowProfile={() => setShowProfile(true)}
           onShowMissions={() => setShowMissions(true)}
           playerProfile={playerProfile}
+          onSetView={(view) => setView(view)}
         />
-        <div className="flex">
-          <div className="h-screen flex-1 border"></div>
-          <div className="h-screen flex-1 border"></div>
-          <div className="h-screen flex-1 border p-10 pt-20">
-            {currentPuzzle && (
-              <div className="mb-6">
-                {/* Hourly Puzzle Timer */}
-                <HourlyPuzzleTimer
-                  nextPuzzleTime={new Date(currentPuzzle.expiryTime.getTime())}
-                  currentPuzzleExpiry={currentPuzzle.expiryTime}
-                  isRarePuzzle={currentPuzzle.isRare}
-                  onPuzzleExpired={handlePuzzleExpired}
+        <div className="md:flex">
+          {/* //mobile display */}
+          {view === "profile" ? (
+            <div className="md:h-screen flex-1 p-10 pb-0 pt-5 md:pt-20">
+              <div>
+                {currentPuzzle && (
+                  <div className="mb-6">
+                    {/* Hourly Puzzle Timer */}
+                    <HourlyPuzzleTimer
+                      nextPuzzleTime={
+                        new Date(currentPuzzle.expiryTime.getTime())
+                      }
+                      currentPuzzleExpiry={currentPuzzle.expiryTime}
+                      isRarePuzzle={currentPuzzle.isRare}
+                      onPuzzleExpired={handlePuzzleExpired}
+                    />
+                  </div>
+                )}
+                {/* Game Stats */}
+                <div className="md:mb-6  relative z-10">
+                  <GameStats
+                    score={gameState.score}
+                    totalScore={playerProfile?.totalXP || 0}
+                    level={playerProfile?.level || 1}
+                    foundWords={gameState.discoveredWords.length}
+                    totalWords={gameState.availableWords.length}
+                    progressPercentage={progressPercentage}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : view === "words" ? (
+            <div className="h-screen relative z-10 flex-1 flex items-center justify-center">
+              {/* Word List */}
+              <div>
+                <WordList
+                  availableWords={gameState.availableWords}
+                  discoveredWords={gameState.discoveredWords}
+                  currentWord={gameState.currentWord}
                 />
               </div>
-            )}
-            {/* Game Stats */}
-            <div className="mb-6 relative z-10">
-              <GameStats
-                score={gameState.score}
-                totalScore={playerProfile?.totalXP || 0}
-                level={playerProfile?.level || 1}
-                foundWords={gameState.discoveredWords.length}
-                totalWords={gameState.availableWords.length}
-                progressPercentage={progressPercentage}
-              />
             </div>
-          </div>
-        </div>
+          ) : (
+            <div className="h-screen flex-1  p-10 pt-0 md:pt-10 relative z-10">
+              {/* Main Game Area */}
+              <div className="md:p-4 max-w-4xl mx-auto">
+                {/* Game Message */}
+                {gameMessage && (
+                  <div className="text-center mb-4 relative z-10">
+                    <div
+                      className={`inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                        gameMessage.includes("Excellent!") ||
+                        gameMessage.includes("Complete")
+                          ? "emerald-accent neon-emerald"
+                          : gameMessage.includes("Not a valid") ||
+                            gameMessage.includes("Already found") ||
+                            gameMessage.includes("must be at least") ||
+                            gameMessage.includes("Time's up")
+                          ? "rose-accent neon-rose animate-pulse"
+                          : "gold-accent neon-gold"
+                      }`}
+                    >
+                      {gameMessage}
+                    </div>
+                  </div>
+                )}
 
-        {/* Main Game Area */}
-        <div className="pt-[100px] p-4 max-w-4xl mx-auto">
-          {/* Game Message */}
-          {gameMessage && (
-            <div className="text-center mb-4 relative z-10">
-              <div
-                className={`inline-block px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  gameMessage.includes("Excellent!") ||
-                  gameMessage.includes("Complete")
-                    ? "emerald-accent neon-emerald"
-                    : gameMessage.includes("Not a valid") ||
-                      gameMessage.includes("Already found") ||
-                      gameMessage.includes("must be at least") ||
-                      gameMessage.includes("Time's up")
-                    ? "rose-accent neon-rose animate-pulse"
-                    : "gold-accent neon-gold"
-                }`}
-              >
-                {gameMessage}
+                {/* Main Game Area */}
+                <div className="grid gap-8">
+                  {/* Letter Wheel Section */}
+                  <div className="flex flex-col items-center">
+                    {/* Letter Wheel */}
+                    <div
+                      className={`transition-all duration-200 ${
+                        incorrectSelection ? "animate-pulse" : ""
+                      } ${
+                        !currentPuzzle?.isActive
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                      }`}
+                    >
+                      <LetterWheel
+                        letters={gameState.letters}
+                        selectedLetters={gameState.selectedLetters}
+                        currentWord={gameState.currentWord}
+                        onLetterSelect={handleLetterSelect}
+                        onLetterDeselect={handleLetterDeselect}
+                        onWordSubmit={handleWordSubmit}
+                        incorrectSelection={incorrectSelection}
+                        disabled={!currentPuzzle?.isActive}
+                      />
+                    </div>
+
+                    {/* Hint Button */}
+                    <div className="mt-6">
+                      <button
+                        onClick={handleHint}
+                        disabled={
+                          gameState.hintsUsed >= 3 || !currentPuzzle?.isActive
+                        }
+                        className="absolute bottom-60 md:bottom-40 left-10 flex items-center px-4 py-2 rounded-xl shadow-lg transition-all duration-200 neon-gold gold-accent 
+          disabled:opacity-50 disabled:cursor-not-allowed 
+          hover:shadow-xl focus:outline-none focus:ring-2 
+          focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-purple-950"
+                      >
+                        <Lightbulb />
+                        <sub>{3 - gameState.hintsUsed}</sub>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
-
-          {/* Main Game Area */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Letter Wheel */}
-            <div className="flex flex-col items-center">
-              <div
-                className={`transition-all duration-200 ${
-                  incorrectSelection ? "animate-pulse" : ""
-                } ${
-                  !currentPuzzle?.isActive
-                    ? "opacity-50 pointer-events-none"
-                    : ""
-                }`}
-              >
-                <LetterWheel
-                  letters={gameState.letters}
-                  selectedLetters={gameState.selectedLetters}
-                  currentWord={gameState.currentWord}
-                  onLetterSelect={handleLetterSelect}
-                  onLetterDeselect={handleLetterDeselect}
-                  onWordSubmit={handleWordSubmit}
-                  incorrectSelection={incorrectSelection}
-                  disabled={!currentPuzzle?.isActive}
-                />
-              </div>
-
-              {/* Controls */}
-              <div className="flex space-x-4 mt-6">
-                <button
-                  onClick={handleHint}
-                  disabled={
-                    gameState.hintsUsed >= 3 || !currentPuzzle?.isActive
-                  }
-                  className="flex items-center space-x-2 px-4 py-2 gold-accent rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl neon-gold focus:outline-none focus:ring-2 focus:ring-gold-400 focus:ring-offset-2 focus:ring-offset-primary-900"
-                >
-                  <Lightbulb className="h-4 w-4" />
-                  <span>Hint ({3 - gameState.hintsUsed})</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Word List */}
-            <div>
-              <WordList
-                availableWords={gameState.availableWords}
-                discoveredWords={gameState.discoveredWords}
-                currentWord={gameState.currentWord}
-              />
-            </div>
-          </div>
         </div>
 
         {/* Congratulations Page */}
@@ -738,11 +754,6 @@ export default function PuzzleRushGame() {
           src="/letters.png"
           alt="alphabets"
           className="absolute w-screen h-screen z-0 top-0 bottom-0 opacity-25"
-        />
-        <img
-          src="/pad.png"
-          alt="Game pad"
-          className="fixed left-10 top-[45%] w-20 h-20 z-0 bottom-0 opacity-95"
         />
       </div>
     );
