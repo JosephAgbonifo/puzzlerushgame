@@ -595,6 +595,8 @@ export default function PuzzleRushGame() {
     return (
       <div className="game-background max-w-[375px] m-auto relative text-white">
         <TopNavigation
+          onShowProfile={() => setShowProfile(true)}
+          onShowMissions={() => setShowMissions(true)}
           level={playerProfile?.level || 1}
           soundEnabled={gameState.soundEnabled}
           volume={volume}
@@ -603,8 +605,6 @@ export default function PuzzleRushGame() {
           onSoundToggle={toggleSound}
           onRestart={handleRestart}
           onWalletConnect={handleWalletConnect}
-          onShowProfile={() => setShowProfile(true)}
-          onShowMissions={() => setShowMissions(true)}
           playerProfile={playerProfile}
           onSetView={(view) => setView(view)}
         />

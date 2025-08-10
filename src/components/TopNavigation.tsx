@@ -52,8 +52,8 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
         setShowSettings(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   const handleRestart = () => {
@@ -160,7 +160,9 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
                 </div>
 
                 <button
-                  onClick={onShowProfile}
+                  onClick={() => {
+                    onShowProfile();
+                  }}
                   className="p-2 rounded-lg text-amber-500 block hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gold-400"
                   aria-label="View profile"
                 >
@@ -168,7 +170,9 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
                 </button>
 
                 <button
-                  onClick={onShowMissions}
+                  onClick={() => {
+                    onShowMissions();
+                  }}
                   className="p-2 rounded-full text-amber-500 block hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   aria-label="View missions"
                 >
@@ -222,8 +226,7 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
           <div className="bg-primary-800 rounded-xl shadow-2xl border border-gold-400/30 p-6 max-w-sm mx-4 animate-in zoom-in-95 duration-200">
             <h3 className="text-lg font-bold text-white mb-2">Restart Game?</h3>
             <p className="text-gray-200 mb-6">
-              This will reset your current progress and start from Level 1. Are
-              you sure?
+              This will reset your current progress. Are you sure?
             </p>
             <div className="flex space-x-3">
               <button
