@@ -59,12 +59,9 @@ export default WordPuzzleGame;
 function Prep() {
   const wallet = useWallet();
   const { connected } = wallet;
-  const randomString = (len: number) =>
-    Array.from({ length: len }, () =>
-      String.fromCharCode(97 + Math.floor(Math.random() * 26))
-    ).join("");
-  const [name, setName] = useState(randomString(7));
-  const [bio, setBio] = useState(randomString(7));
+
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [readyForGame, setReadyForGame] = useState(false);
   const [checkingUser, setCheckingUser] = useState(true);
@@ -90,7 +87,7 @@ function Prep() {
           console.log("User already exists");
           setReadyForGame(true);
         } else {
-          createUser(wallet);
+          console.log("New user detected. Showing registration form...");
         }
       } catch (err) {
         console.error("Failed to check user:", err);

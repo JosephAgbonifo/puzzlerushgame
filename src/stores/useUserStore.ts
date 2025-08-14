@@ -7,8 +7,6 @@ interface User {
   username: string;
   pfp: string;
   id: number;
-  profile: boolean;
-  mission: boolean;
 }
 
 interface UserStore {
@@ -47,25 +45,12 @@ const customStorage: PersistStorage<UserStore> = {
   },
 };
 
-export const useUserStore = create<
-  UserStore & {
-    setProfile: (profile: boolean) => void;
-    setMission: (mission: boolean) => void;
-  }
->()(
+export const useUserStore = create<UserStore & {}>()(
   persist(
     (set, get) => ({
       user: null,
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: null }),
-      setProfile: (profile) => {
-        const user = get().user;
-        if (user) set({ user: { ...user, profile } });
-      },
-      setMission: (mission) => {
-        const user = get().user;
-        if (user) set({ user: { ...user, mission } });
-      },
     }),
     {
       name: "user-storage",
