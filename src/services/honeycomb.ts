@@ -1,21 +1,21 @@
 // Honeycomb SDK integration for on-chain missions and identity
-interface MissionMetadata {
+export interface MissionMetadata {
   category: string;
   difficulty: "easy" | "medium" | "hard" | "expert" | "master"; // optional: restrict to known values
   xpReward: number;
 }
 
-interface MissionResults {
+export interface MissionResults {
   completionTime: number; // or Date, depending on your use
   accuracy: number;
   wordsFound: string[];
   xpEarned: number;
 }
-interface Trait {
+export interface Trait {
   name: string;
   level: number;
 }
-interface PuzzleProof {
+export interface PuzzleProof {
   timeTaken: number;
   wordsFound: string[];
   hash: string;
